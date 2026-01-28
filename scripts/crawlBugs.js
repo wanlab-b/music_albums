@@ -61,9 +61,21 @@ async function getAlbumDetail(albumId) {
     const { data } = await axios.get(url);
     const $ = cheerio.load(data);
 
-    // 기본 정보
-    const title = $('header.pgTitle > h1').text().trim();
+    // 기본 정보 (Title)
+    // 1순위: DOM 구조에서 추출
+    let title = $('header.pgTitle > h1').text().trim();
     
+    // 2순위: og:title 메타 태그에서 추출 (DOM 변경시 안전장치)
+    if (!title) {
+      title = $('meta[property="og:title"]').attr('content')?.trim();
+    }
+    
+    // 3순위: title 태그에서 추출 후 정제
+    if (!title) {
+      const pageTitle = $('title').text();
+      title = pageTitle.split(' : ')[0]; // "Album Title : 벅스" 형식 제거
+    }
+
     // 테이블 정보 파싱
     let artist = '';
     let type = '';
@@ -100,25 +112,17 @@ async function getAlbumDetail(albumId) {
       }
     });
 
-    // 설명 (있을 경우)
-    const description = $('.albumIntro .lines').text().trim().substring(0, 300) + '...';
-
-    // 랜덤 평점 생성 (크롤링 불가하므로)
-    const criticScore = Math.floor(Math.random() * (95 - 65) + 65);
-    const userScore = Math.floor(Math.random() * (98 - 70) + 70);
+    // 요청사항: description, criticScore, userScore 제거됨
 
     return {
       id: albumId,
       title,
       artist,
-      type, // 수집 항목 3
-      genres, // 수집 항목 4
-      releaseDate, // 수집 항목 5
+      type, 
+      genres, 
+      releaseDate, 
       coverUrl,
-      tracks, // 수집 항목 6
-      description,
-      criticScore,
-      userScore
+      tracks
     };
 
   } catch (error) {
@@ -152,6 +156,10 @@ async function main() {
       const albumData = await getAlbumDetail(id);
       
       if (albumData) {
+        // 타이틀이 없는 경우 로그 출력 (디버깅용)
+        if (!albumData.title) {
+            console.warn(`   ⚠️ 경고: 타이틀을 찾을 수 없습니다. (ID: ${id})`);
+        }
         crawledAlbums.set(id, albumData);
       }
 
