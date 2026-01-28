@@ -33,14 +33,14 @@ const BestAlbums: React.FC = () => {
   // Extract unique years and genres from data (Combining both datasets for simplicity or just using Albums as base)
   const years = useMemo(() => {
     const data = viewType === 'albums' ? MOCK_ALBUMS : MOCK_SONGS;
-    const uniqueYears = Array.from(new Set(data.map(a => a.releaseDate.split('-')[0])));
-    return ['All', ...uniqueYears.sort().reverse()];
+    const uniqueYears = Array.from(new Set(data.map((a: any) => a.releaseDate.split('-')[0])));
+    return ['All', ...uniqueYears.sort().reverse()] as string[];
   }, [viewType]);
 
   const genres = useMemo(() => {
     const data = viewType === 'albums' ? MOCK_ALBUMS : MOCK_SONGS;
-    const uniqueGenres = Array.from(new Set(data.flatMap(a => a.genres)));
-    return ['All', ...uniqueGenres.sort()];
+    const uniqueGenres = Array.from(new Set(data.flatMap((a: any) => a.genres)));
+    return ['All', ...uniqueGenres.sort()] as string[];
   }, [viewType]);
 
   const sortOptions = ['Highest Rated', 'Lowest Rated', 'Newest', 'Oldest'];

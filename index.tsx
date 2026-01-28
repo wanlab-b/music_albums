@@ -1,15 +1,3 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
-}
-
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// [DEPRECATED] 이 파일은 사용되지 않습니다. 
+// src/index.tsx 파일이 실제 진입점입니다.
+// 이 파일은 삭제하셔도 좋습니다.

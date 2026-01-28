@@ -9,20 +9,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vite": "^7.3.1",
-    "path": "^0.12.7",
-    "firebase": "^12.8.0",
-    "react-dom": "^19.2.4",
-    "react-router-dom": "^7.13.0",
-    "lucide-react": "^0.563.0",
-    "@google/genai": "^1.38.0",
-    "@vitejs/plugin-react": "^5.1.2",
     "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "path": "^0.12.7",
     "url": "^0.11.4",
-    "axios": "^1.13.4",
-    "@react-oauth/google": "^0.13.4",
+    "vite": "^7.3.1",
+    "@vitejs/plugin-react": "^5.1.2",
+    "@google/genai": "^1.38.0",
+    "lucide-react": "^0.563.0",
+    "react-router-dom": "^7.13.0",
     "firebase-admin": "^13.6.0",
-    "fs": "^0.0.1-security"
+    "fs": "^0.0.1-security",
+    "@react-oauth/google": "^0.13.4",
+    "firebase": "^12.8.0",
+    "axios": "^1.13.4"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
