@@ -9,8 +9,9 @@ const __dirname = path.dirname(__filename);
 
 // --- 설정 ---
 const START_DATE = new Date(); // 오늘
-const DAYS_TO_CRAWL = 3; // 요청사항: 3일치 수집
+const DAYS_TO_CRAWL = 3; // 오늘 포함 며칠 전까지 수집할지
 const REQUEST_DELAY_MS = 1500; // 차단 방지용 딜레이 (1.5초)
+const MAX_ALBUMS = 10; // [NEW] 최대 수집 앨범 개수 (테스트용: 10개, 제한 없으려면 0 설정)
 
 // 딜레이 함수
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -25,7 +26,6 @@ const formatDate = (date) => {
 
 // 1. 차트 페이지에서 앨범 ID 수집 (발라드 장르 일간 차트)
 async function getAlbumIdsFromChart(dateStr) {
-  // 요청하신 URL 패턴: https://music.bugs.co.kr/genre/chart/kpop/ballad/total/day?date=YYYYMMDD
   const url = `https://music.bugs.co.kr/genre/chart/kpop/ballad/total/day?date=${dateStr}`;
   console.log(`📡 차트 요청 중: ${url}`);
   
@@ -62,29 +62,18 @@ async function getAlbumDetail(albumId) {
     const $ = cheerio.load(data);
 
     // 기본 정보 (Title)
-    // 1순위: DOM 구조에서 추출
     let title = $('header.pgTitle > h1').text().trim();
-    
-    // 2순위: og:title 메타 태그에서 추출 (DOM 변경시 안전장치)
     if (!title) {
       title = $('meta[property="og:title"]').attr('content')?.trim();
     }
-    
-    // 3순위: title 태그에서 추출 후 정제
     if (!title) {
       const pageTitle = $('title').text();
-      // 기존: "Album Title : 벅스" -> "Album Title"
-      // 수정 전 문제: "Album Title / Artist : 벅스" -> "Album Title / Artist"
       title = pageTitle.split(' : ')[0]; 
     }
 
-    // [Title 정제 로직 추가] 
-    // "제목 / 아티스트" 형태일 경우 "/" 기준으로 잘라내어 앞부분만 취함
+    // Title 정제 로직 ("제목 / 아티스트" -> "제목")
     if (title && title.includes(' / ')) {
-        // 예: "부재 / 카더가든" -> ["부재", "카더가든"] -> "부재"
         const parts = title.split(' / ');
-        // 앨범명에 진짜 슬래시가 들어가는 경우(AC/DC 등)가 드물게 있지만, 
-        // 벅스 표기상 " / " (양옆 공백)은 보통 구분자입니다.
         if (parts.length > 1) {
             title = parts[0].trim();
         }
@@ -102,7 +91,6 @@ async function getAlbumDetail(albumId) {
 
       if (header === '아티스트') {
         artist = value.find('a').first().text().trim();
-        // 아티스트 링크가 없는 경우 텍스트만 가져옴
         if (!artist) artist = value.text().trim();
       } else if (header === '유형') {
         type = value.text().trim();
@@ -119,7 +107,6 @@ async function getAlbumDetail(albumId) {
     // 트랙리스트 파싱
     const tracks = [];
     $('table.trackList > tbody > tr').each((i, el) => {
-      // 19금이나 타이틀 곡 뱃지 텍스트 제거하고 순수 제목만 추출
       const trackTitle = $(el).find('p.title a').text().trim();
       if (trackTitle) {
         tracks.push(trackTitle);
@@ -147,8 +134,14 @@ async function getAlbumDetail(albumId) {
 async function main() {
   const crawledAlbums = new Map(); // 중복 제거를 위한 Map
   
-  // 1. 날짜별 차트 순회 (오늘 포함 과거 3일)
+  // 1. 날짜별 차트 순회
   for (let i = 0; i < DAYS_TO_CRAWL; i++) {
+    // 최대 개수 도달 시 전체 루프 종료
+    if (MAX_ALBUMS > 0 && crawledAlbums.size >= MAX_ALBUMS) {
+        console.log(`\n🛑 목표 수집 개수(${MAX_ALBUMS}개)에 도달하여 중단합니다.`);
+        break;
+    }
+
     const targetDate = new Date(START_DATE);
     targetDate.setDate(START_DATE.getDate() - i);
     const dateStr = formatDate(targetDate);
@@ -160,15 +153,19 @@ async function main() {
 
     // 2. 앨범 ID별 상세 크롤링
     for (const id of albumIds) {
+      // 최대 개수 도달 시 내부 루프 종료
+      if (MAX_ALBUMS > 0 && crawledAlbums.size >= MAX_ALBUMS) {
+        break; 
+      }
+
       if (crawledAlbums.has(id)) {
         continue; // 이미 수집함
       }
 
-      console.log(`   🔍 앨범 상세 정보 수집 중... (ID: ${id})`);
+      console.log(`   🔍 앨범 상세 정보 수집 중... (ID: ${id}) [${crawledAlbums.size + 1}/${MAX_ALBUMS || '∞'}]`);
       const albumData = await getAlbumDetail(id);
       
       if (albumData) {
-        // 타이틀이 없는 경우 로그 출력 (디버깅용)
         if (!albumData.title) {
             console.warn(`   ⚠️ 경고: 타이틀을 찾을 수 없습니다. (ID: ${id})`);
         }
