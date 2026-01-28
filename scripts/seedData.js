@@ -1,6 +1,11 @@
-const admin = require("firebase-admin");
-const path = require("path");
-const fs = require("fs");
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getDatabase } from 'firebase-admin/database';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ------------------------------------------------------------------
 // [설정 1] 서비스 계정 키 파일 경로 설정
@@ -15,18 +20,19 @@ if (!fs.existsSync(serviceAccountPath)) {
   process.exit(1);
 }
 
-const serviceAccount = require(serviceAccountPath);
+// JSON 파일 읽기
+const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
 
 // Firebase Admin 초기화
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+initializeApp({
+  credential: cert(serviceAccount),
   databaseURL: "https://music-album-3ad4f-default-rtdb.asia-southeast1.firebasedatabase.app"
 });
 
-const db = admin.database();
+const db = getDatabase();
 
 // ------------------------------------------------------------------
-// [설정 2] 업로드할 데이터 (constants.ts의 데이터를 여기에 복사함)
+// [설정 2] 업로드할 데이터
 // ------------------------------------------------------------------
 const MOCK_ALBUMS = [
   {
@@ -147,10 +153,7 @@ async function seedDatabase() {
   try {
     console.log("🚀 데이터 업로드 시작...");
 
-    // 1. Albums 업로드
     const albumsRef = db.ref("albums");
-    // 기존 데이터가 있다면 덮어쓰거나, 안전하게 하기 위해 set 사용
-    // 배열 형태보다는 ID를 키로 가지는 객체 형태가 Realtime DB에 더 적합함
     const albumsData = {};
     MOCK_ALBUMS.forEach(album => {
       albumsData[album.id] = album;
@@ -158,7 +161,6 @@ async function seedDatabase() {
     await albumsRef.set(albumsData);
     console.log(`✅ 앨범 데이터 ${MOCK_ALBUMS.length}개 업로드 완료`);
 
-    // 2. Reviews 업로드
     const reviewsRef = db.ref("reviews");
     const reviewsData = {};
     MOCK_REVIEWS.forEach(review => {
