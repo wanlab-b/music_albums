@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 
 // --- 설정 ---
 const START_DATE = new Date(); // 오늘
-const DAYS_TO_CRAWL = 2; // 오늘 포함 며칠 전까지 수집할지 (테스트용으로 작게 설정)
+const DAYS_TO_CRAWL = 3; // 요청사항: 3일치 수집
 const REQUEST_DELAY_MS = 1500; // 차단 방지용 딜레이 (1.5초)
 
 // 딜레이 함수
@@ -23,9 +23,10 @@ const formatDate = (date) => {
   return `${year}${month}${day}`;
 };
 
-// 1. 차트 페이지에서 앨범 ID 수집
+// 1. 차트 페이지에서 앨범 ID 수집 (발라드 장르 일간 차트)
 async function getAlbumIdsFromChart(dateStr) {
-  const url = `https://music.bugs.co.kr/chart/track/day/total?chartdate=${dateStr}`;
+  // 요청하신 URL 패턴: https://music.bugs.co.kr/genre/chart/kpop/ballad/total/day?date=YYYYMMDD
+  const url = `https://music.bugs.co.kr/genre/chart/kpop/ballad/total/day?date=${dateStr}`;
   console.log(`📡 차트 요청 중: ${url}`);
   
   try {
@@ -36,7 +37,6 @@ async function getAlbumIdsFromChart(dateStr) {
     // 벅스 차트 리스트에서 앨범 링크 추출
     $('.list > tbody > tr').each((i, el) => {
       // 앨범 썸네일이나 제목에 걸린 링크에서 ID 추출
-      // href="https://music.bugs.co.kr/album/20621651?wl_ref=list_tr_07_chart"
       const albumHref = $(el).find('a.thumbnail').attr('href');
       if (albumHref) {
         const match = albumHref.match(/album\/(\d+)/);
@@ -73,7 +73,21 @@ async function getAlbumDetail(albumId) {
     // 3순위: title 태그에서 추출 후 정제
     if (!title) {
       const pageTitle = $('title').text();
-      title = pageTitle.split(' : ')[0]; // "Album Title : 벅스" 형식 제거
+      // 기존: "Album Title : 벅스" -> "Album Title"
+      // 수정 전 문제: "Album Title / Artist : 벅스" -> "Album Title / Artist"
+      title = pageTitle.split(' : ')[0]; 
+    }
+
+    // [Title 정제 로직 추가] 
+    // "제목 / 아티스트" 형태일 경우 "/" 기준으로 잘라내어 앞부분만 취함
+    if (title && title.includes(' / ')) {
+        // 예: "부재 / 카더가든" -> ["부재", "카더가든"] -> "부재"
+        const parts = title.split(' / ');
+        // 앨범명에 진짜 슬래시가 들어가는 경우(AC/DC 등)가 드물게 있지만, 
+        // 벅스 표기상 " / " (양옆 공백)은 보통 구분자입니다.
+        if (parts.length > 1) {
+            title = parts[0].trim();
+        }
     }
 
     // 테이블 정보 파싱
@@ -112,8 +126,6 @@ async function getAlbumDetail(albumId) {
       }
     });
 
-    // 요청사항: description, criticScore, userScore 제거됨
-
     return {
       id: albumId,
       title,
@@ -135,7 +147,7 @@ async function getAlbumDetail(albumId) {
 async function main() {
   const crawledAlbums = new Map(); // 중복 제거를 위한 Map
   
-  // 1. 날짜별 차트 순회
+  // 1. 날짜별 차트 순회 (오늘 포함 과거 3일)
   for (let i = 0; i < DAYS_TO_CRAWL; i++) {
     const targetDate = new Date(START_DATE);
     targetDate.setDate(START_DATE.getDate() - i);
