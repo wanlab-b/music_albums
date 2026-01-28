@@ -26,6 +26,9 @@ const BestAlbums: React.FC = () => {
   
   // State for dropdown visibility
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  // State for pagination
+  const [visibleCount, setVisibleCount] = useState<number>(5);
   
   // Refs for click outside handling
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -55,6 +58,11 @@ const BestAlbums: React.FC = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(5);
+  }, [viewType, selectedYear, selectedGenre, selectedSort]);
 
   // Filtering and Sorting Logic
   const filteredAndSortedItems = useMemo(() => {
@@ -89,6 +97,8 @@ const BestAlbums: React.FC = () => {
 
     return result;
   }, [selectedYear, selectedGenre, selectedSort, viewType]);
+
+  const displayedItems = filteredAndSortedItems.slice(0, visibleCount);
 
   const toggleDropdown = (name: string) => {
     setActiveDropdown(activeDropdown === name ? null : name);
@@ -234,8 +244,8 @@ const BestAlbums: React.FC = () => {
 
       {/* List */}
       <div className="flex flex-col gap-4">
-        {filteredAndSortedItems.length > 0 ? (
-          filteredAndSortedItems.map((item, index) => (
+        {displayedItems.length > 0 ? (
+          displayedItems.map((item, index) => (
             <div 
               key={item.id}
               className="group flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 p-4 rounded-xl bg-dark-card border border-white/5 hover:border-white/10 transition-all hover:bg-white/[0.02]"
@@ -328,9 +338,12 @@ const BestAlbums: React.FC = () => {
         )}
       </div>
 
-      {filteredAndSortedItems.length > 0 && (
+      {visibleCount < filteredAndSortedItems.length && (
         <div className="mt-12 text-center">
-          <button className="px-8 py-3 bg-white/5 hover:bg-white/10 text-gray-300 rounded-full text-sm font-medium transition-colors border border-white/5">
+          <button 
+            onClick={() => setVisibleCount(prev => prev + 5)}
+            className="px-8 py-3 bg-white/5 hover:bg-white/10 text-gray-300 rounded-full text-sm font-medium transition-colors border border-white/5"
+          >
               더 보기
           </button>
         </div>
