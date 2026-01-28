@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MOCK_ALBUMS, MOCK_REVIEWS } from '../constants';
 import ReviewItem from '../components/ReviewItem';
-import AiSummary from '../components/AiSummary';
 import { Play, Heart, Share2, MoreHorizontal, PenTool, Star } from 'lucide-react';
 
 const AlbumDetail: React.FC = () => {
@@ -86,9 +85,6 @@ const AlbumDetail: React.FC = () => {
           <div className="text-gray-300 leading-relaxed text-base md:text-lg mb-6">
             {album.description || "이 앨범에 대한 설명이 아직 등록되지 않았습니다."}
           </div>
-
-          {/* Gemini AI Summary Integration */}
-          <AiSummary artist={album.artist} album={album.title} />
         </div>
       </div>
 

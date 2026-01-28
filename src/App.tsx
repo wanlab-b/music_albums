@@ -43,7 +43,7 @@ const Footer: React.FC = () => (
         </div>
       </div>
       <div className="mt-12 border-t border-white/5 pt-8 text-center text-xs text-gray-600">
-        &copy; 2024 MuzikPick. All rights reserved. Powered by Google Gemini.
+        &copy; 2024 MuzikPick. All rights reserved.
       </div>
     </div>
   </footer>
