@@ -3,6 +3,7 @@ export interface Album {
   id: string;
   title: string;
   artist: string;
+  type?: string; // e.g., '싱글', 'EP(미니)', '정규'
   releaseDate: string;
   coverUrl: string;
   genres: string[];

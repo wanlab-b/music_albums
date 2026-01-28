@@ -1,21 +1,13 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { MOCK_ALBUMS } from '../constants';
 import { Link } from 'react-router-dom';
-import { Filter, ChevronDown, Check, Disc, Music2 } from 'lucide-react';
-
-// Mock Data for Songs (Extended for this view)
-const MOCK_SONGS = [
-  { id: 's1', title: 'Super Shy', artist: 'NewJeans', album: 'Get Up', albumId: '1', coverUrl: 'https://picsum.photos/400/400?random=1', criticScore: 94, userScore: 96, releaseDate: '2023-07-21', genres: ['K-Pop', 'UK Garage'] },
-  { id: 's2', title: 'Kill Bill', artist: 'SZA', album: 'SOS', albumId: '2', coverUrl: 'https://picsum.photos/400/400?random=2', criticScore: 92, userScore: 89, releaseDate: '2022-12-09', genres: ['R&B'] },
-  { id: 's3', title: 'Queencard', artist: '(G)I-DLE', album: 'I Feel', albumId: '3', coverUrl: 'https://picsum.photos/400/400?random=3', criticScore: 88, userScore: 85, releaseDate: '2023-05-15', genres: ['K-Pop'] },
-  { id: 's4', title: 'Anti-Hero', artist: 'Taylor Swift', album: 'Midnights', albumId: '4', coverUrl: 'https://picsum.photos/400/400?random=4', criticScore: 87, userScore: 84, releaseDate: '2022-10-21', genres: ['Synth-pop'] },
-  { id: 's5', title: 'Seven', artist: 'Jung Kook', album: 'Golden', albumId: '6', coverUrl: 'https://picsum.photos/400/400?random=6', criticScore: 86, userScore: 98, releaseDate: '2023-11-03', genres: ['Pop'] },
-  { id: 's6', title: 'vampire', artist: 'Olivia Rodrigo', album: 'GUTS', albumId: '8', coverUrl: 'https://picsum.photos/400/400?random=8', criticScore: 91, userScore: 90, releaseDate: '2023-09-08', genres: ['Pop Rock'] },
-  { id: 's7', title: 'Ditto', artist: 'NewJeans', album: 'Get Up', albumId: '1', coverUrl: 'https://picsum.photos/400/400?random=1', criticScore: 95, userScore: 98, releaseDate: '2022-12-19', genres: ['K-Pop'] },
-  { id: 's8', title: 'Cupid', artist: 'FIFTY FIFTY', album: 'The Beginning', albumId: '99', coverUrl: 'https://picsum.photos/400/400?random=9', criticScore: 85, userScore: 88, releaseDate: '2023-02-24', genres: ['K-Pop'] },
-];
+import { Filter, ChevronDown, Check, Disc, Music2, Loader2 } from 'lucide-react';
+import { getAllAlbums } from '../services/albumService';
+import { Album } from '../types';
 
 const BestAlbums: React.FC = () => {
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [loading, setLoading] = useState(true);
+
   // State for view mode
   const [viewType, setViewType] = useState<'albums' | 'songs'>('albums');
 
@@ -28,27 +20,34 @@ const BestAlbums: React.FC = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   // State for pagination
-  const [visibleCount, setVisibleCount] = useState<number>(5);
+  const [visibleCount, setVisibleCount] = useState<number>(10);
   
-  // Refs for click outside handling
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Extract unique years and genres from data (Combining both datasets for simplicity or just using Albums as base)
-  const years = useMemo(() => {
-    const data = viewType === 'albums' ? MOCK_ALBUMS : MOCK_SONGS;
-    const uniqueYears = Array.from(new Set(data.map((a: any) => a.releaseDate.split('-')[0])));
-    return ['All', ...uniqueYears.sort().reverse()] as string[];
-  }, [viewType]);
+  useEffect(() => {
+    const fetchAlbums = async () => {
+      setLoading(true);
+      const data = await getAllAlbums();
+      setAlbums(data);
+      setLoading(false);
+    };
+    fetchAlbums();
+  }, []);
 
+  // Extract unique years
+  const years = useMemo(() => {
+    const uniqueYears = Array.from(new Set(albums.map((a) => a.releaseDate.substring(0, 4)))); // Extract YYYY
+    return ['All', ...uniqueYears.sort().reverse()] as string[];
+  }, [albums]);
+
+  // Extract unique genres
   const genres = useMemo(() => {
-    const data = viewType === 'albums' ? MOCK_ALBUMS : MOCK_SONGS;
-    const uniqueGenres = Array.from(new Set(data.flatMap((a: any) => a.genres)));
+    const uniqueGenres = Array.from(new Set(albums.flatMap((a) => a.genres || [])));
     return ['All', ...uniqueGenres.sort()] as string[];
-  }, [viewType]);
+  }, [albums]);
 
   const sortOptions = ['Highest Rated', 'Lowest Rated', 'Newest', 'Oldest'];
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -59,15 +58,18 @@ const BestAlbums: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Reset visible count when filters change
   useEffect(() => {
-    setVisibleCount(5);
+    setVisibleCount(10);
   }, [viewType, selectedYear, selectedGenre, selectedSort]);
 
-  // Filtering and Sorting Logic
+  // Filtering and Sorting
   const filteredAndSortedItems = useMemo(() => {
-    // Determine which dataset to use
-    let result: any[] = viewType === 'albums' ? [...MOCK_ALBUMS] : [...MOCK_SONGS];
+    // For now, we only have Album data. 
+    // If viewType === 'songs', we could show tracks if we flattened them, 
+    // but without individual track scores, it's better to stick to Albums or just map tracks to their album.
+    // For simplicity in this demo, 'songs' view will just be disabled or fallback to albums for now.
+    
+    let result = [...albums];
 
     // Filter by Year
     if (selectedYear !== 'All') {
@@ -76,7 +78,7 @@ const BestAlbums: React.FC = () => {
 
     // Filter by Genre
     if (selectedGenre !== 'All') {
-      result = result.filter(item => item.genres.includes(selectedGenre));
+      result = result.filter(item => item.genres && item.genres.includes(selectedGenre));
     }
 
     // Sort
@@ -87,16 +89,16 @@ const BestAlbums: React.FC = () => {
         case 'Lowest Rated':
           return a.criticScore - b.criticScore;
         case 'Newest':
-          return new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
+          return b.releaseDate.localeCompare(a.releaseDate);
         case 'Oldest':
-          return new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime();
+          return a.releaseDate.localeCompare(b.releaseDate);
         default:
           return 0;
       }
     });
 
     return result;
-  }, [selectedYear, selectedGenre, selectedSort, viewType]);
+  }, [selectedYear, selectedGenre, selectedSort, albums]);
 
   const displayedItems = filteredAndSortedItems.slice(0, visibleCount);
 
@@ -116,16 +118,7 @@ const BestAlbums: React.FC = () => {
     return 'text-red-400';
   };
 
-  // Helper Component for Dropdown
-  const DropdownMenu = ({ 
-    options, 
-    selected, 
-    onSelect 
-  }: { 
-    options: string[], 
-    selected: string, 
-    onSelect: (val: string) => void 
-  }) => (
+  const DropdownMenu = ({ options, selected, onSelect }: { options: string[], selected: string, onSelect: (val: string) => void }) => (
     <div className="absolute top-full left-0 mt-2 w-48 bg-dark-card border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
       <div className="max-h-60 overflow-y-auto custom-scrollbar p-1">
         {options.map((option) => (
@@ -149,27 +142,34 @@ const BestAlbums: React.FC = () => {
     </div>
   );
 
+  if (loading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10" onClick={() => setActiveDropdown(null)}>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
         <div>
           <h1 className="text-3xl md:text-4xl font-black text-white mb-4">
-            Best {viewType === 'albums' ? 'Albums' : 'Songs'} {selectedYear !== 'All' ? `of ${selectedYear}` : ''}
+            Best Albums {selectedYear !== 'All' ? `of ${selectedYear}` : ''}
           </h1>
           <p className="text-gray-400 max-w-2xl">
-            MuzikPick 평론가 점수와 유저 평가를 종합하여 선정된 최고의 {viewType === 'albums' ? '앨범' : '노래'} 차트입니다.
+            MuzikPick 평론가 점수와 유저 평가를 종합하여 선정된 최고의 앨범 차트입니다.
           </p>
         </div>
       </div>
 
-      {/* Toolbar: Filters and View Toggle */}
+      {/* Toolbar */}
       <div 
         className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10" 
         ref={dropdownRef}
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the toolbar
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Filters */}
         <div className="flex flex-wrap items-center gap-3">
             {/* Year Filter */}
             <div className="relative">
@@ -215,29 +215,11 @@ const BestAlbums: React.FC = () => {
             </div>
         </div>
 
-        {/* View Toggle */}
-        <div className="flex items-center bg-dark-card border border-white/10 p-1 rounded-xl self-start md:self-auto">
-            <button 
-                onClick={() => setViewType('albums')}
-                className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold transition-all ${
-                    viewType === 'albums' 
-                    ? 'bg-white/10 text-white shadow-lg' 
-                    : 'text-gray-400 hover:text-white'
-                }`}
-            >
+        {/* View Toggle (Disabled for now as we only have albums) */}
+        <div className="flex items-center bg-dark-card border border-white/10 p-1 rounded-xl self-start md:self-auto opacity-50 cursor-not-allowed">
+            <button className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold bg-white/10 text-white shadow-lg">
                 <Disc className="w-4 h-4" />
                 Albums
-            </button>
-            <button 
-                onClick={() => setViewType('songs')}
-                className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold transition-all ${
-                    viewType === 'songs' 
-                    ? 'bg-white/10 text-white shadow-lg' 
-                    : 'text-gray-400 hover:text-white'
-                }`}
-            >
-                <Music2 className="w-4 h-4" />
-                Songs
             </button>
         </div>
       </div>
@@ -258,38 +240,25 @@ const BestAlbums: React.FC = () => {
                   </span>
                 </div>
                 
-                <Link to={viewType === 'albums' ? `/album/${item.id}` : `/album/${(item as any).albumId}`} className="relative block w-full sm:w-32 aspect-square rounded-lg overflow-hidden flex-shrink-0">
+                <Link to={`/album/${item.id}`} className="relative block w-full sm:w-32 aspect-square rounded-lg overflow-hidden flex-shrink-0">
                   <img 
                     src={item.coverUrl} 
                     alt={item.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                   />
-                  {viewType === 'songs' && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="w-10 h-10 rounded-full bg-primary/90 flex items-center justify-center text-white">
-                             <Music2 className="w-5 h-5 fill-current" />
-                          </div>
-                      </div>
-                  )}
                 </Link>
               </div>
 
               {/* Info */}
               <div className="flex-grow min-w-0 py-1">
-                <Link to={viewType === 'albums' ? `/album/${item.id}` : `/album/${(item as any).albumId}`} className="block">
+                <Link to={`/album/${item.id}`} className="block">
                   <h3 className="text-xl sm:text-2xl font-bold text-white truncate mb-1 group-hover:text-primary transition-colors">
                     {item.title}
                   </h3>
                 </Link>
                 <div className="text-gray-300 font-medium mb-2 flex items-center gap-2">
                     <span>{item.artist}</span>
-                    {viewType === 'songs' && (
-                        <>
-                            <span className="text-gray-600">•</span>
-                            <span className="text-gray-500 text-sm">{(item as any).album}</span>
-                        </>
-                    )}
                 </div>
                 
                 <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-3">
@@ -323,7 +292,7 @@ const BestAlbums: React.FC = () => {
           ))
         ) : (
           <div className="text-center py-20 bg-dark-card rounded-xl border border-white/5">
-            <p className="text-gray-400 text-lg">조건에 맞는 {viewType === 'albums' ? '앨범이' : '노래가'} 없습니다.</p>
+            <p className="text-gray-400 text-lg">조건에 맞는 앨범이 없습니다.</p>
             <button 
               onClick={() => {
                 setSelectedYear('All');
@@ -341,7 +310,7 @@ const BestAlbums: React.FC = () => {
       {visibleCount < filteredAndSortedItems.length && (
         <div className="mt-12 text-center">
           <button 
-            onClick={() => setVisibleCount(prev => prev + 5)}
+            onClick={() => setVisibleCount(prev => prev + 10)}
             className="px-8 py-3 bg-white/5 hover:bg-white/10 text-gray-300 rounded-full text-sm font-medium transition-colors border border-white/5"
           >
               더 보기

@@ -1,13 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import AlbumCard from '../components/AlbumCard';
-import { MOCK_ALBUMS } from '../constants';
-import { ArrowRight, Flame, Calendar, Star } from 'lucide-react';
+import { getAllAlbums } from '../services/albumService';
+import { Album } from '../types';
+import { ArrowRight, Flame, Calendar, Star, Loader2 } from 'lucide-react';
 
 const Home: React.FC = () => {
-  // Show 6 albums per row
-  const trendingAlbums = MOCK_ALBUMS.slice(0, 6);
-  // Reuse albums or use remaining to ensure we have 6 items to display
-  const newReleases = [...MOCK_ALBUMS].reverse().slice(0, 6);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAlbums = async () => {
+      const data = await getAllAlbums();
+      setAlbums(data);
+      setLoading(false);
+    };
+    fetchAlbums();
+  }, []);
+
+  // Show 6 albums per row (Trending: sorted by critic score)
+  const trendingAlbums = [...albums]
+    .sort((a, b) => b.criticScore - a.criticScore)
+    .slice(0, 6);
+    
+  // New Releases: sorted by release date (simplified string comparison for YYYY.MM.DD)
+  const newReleases = [...albums]
+    .sort((a, b) => b.releaseDate.localeCompare(a.releaseDate))
+    .slice(0, 6);
+
+  if (loading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-12 pb-12">
@@ -48,11 +74,15 @@ const Home: React.FC = () => {
             </div>
             <button className="text-sm text-gray-400 hover:text-white transition-colors">더보기</button>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {trendingAlbums.map((album, index) => (
-              <AlbumCard key={album.id} album={album} rank={index + 1} />
-            ))}
-          </div>
+          {trendingAlbums.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {trendingAlbums.map((album, index) => (
+                <AlbumCard key={album.id} album={album} rank={index + 1} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 text-gray-500">데이터가 없습니다.</div>
+          )}
         </section>
 
         {/* New Releases Section */}
@@ -64,11 +94,15 @@ const Home: React.FC = () => {
             </div>
             <button className="text-sm text-gray-400 hover:text-white transition-colors">더보기</button>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {newReleases.map((album) => (
-              <AlbumCard key={album.id} album={album} />
-            ))}
-          </div>
+          {newReleases.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {newReleases.map((album) => (
+                <AlbumCard key={album.id} album={album} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 text-gray-500">데이터가 없습니다.</div>
+          )}
         </section>
 
         {/* Community Highlight Section */}

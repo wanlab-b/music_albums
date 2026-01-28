@@ -1,28 +1,48 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MOCK_ALBUMS, MOCK_REVIEWS } from '../constants';
+import { getAlbumById } from '../services/albumService';
+import { Album } from '../types';
+import { MOCK_REVIEWS } from '../constants'; // 리뷰는 아직 Mock 유지
 import ReviewItem from '../components/ReviewItem';
-import { Play, Heart, Share2, MoreHorizontal, PenTool, Star } from 'lucide-react';
+import { Play, Heart, Share2, PenTool, Star, Loader2 } from 'lucide-react';
 
 const AlbumDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const album = MOCK_ALBUMS.find(a => a.id === id);
+  const [album, setAlbum] = useState<Album | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchData = async () => {
+      if (id) {
+        setLoading(true);
+        const data = await getAlbumById(id);
+        setAlbum(data);
+        setLoading(false);
+      }
+    };
+    fetchData();
     window.scrollTo(0, 0);
   }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   if (!album) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
         <h2 className="text-2xl font-bold text-white mb-2">앨범을 찾을 수 없습니다</h2>
-        <p className="text-gray-400 mb-6">요청하신 앨범 정보가 존재하지 않습니다.</p>
+        <p className="text-gray-400 mb-6">요청하신 앨범 정보가 존재하지 않거나 삭제되었습니다.</p>
         <Link to="/" className="text-primary hover:underline">홈으로 돌아가기</Link>
       </div>
     );
   }
 
-  // Calculate scores (mock logic)
+  // Calculate scores
   const userScoreColor = album.userScore >= 80 ? 'text-emerald-400' : album.userScore >= 60 ? 'text-yellow-400' : 'text-red-400';
   const criticScoreColor = album.criticScore >= 80 ? 'bg-emerald-500' : album.criticScore >= 60 ? 'bg-yellow-500' : 'bg-red-500';
 
@@ -30,7 +50,7 @@ const AlbumDetail: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row gap-6 lg:gap-10 mb-10">
-        {/* Cover Art - Reduced Size */}
+        {/* Cover Art */}
         <div className="flex-shrink-0 w-full md:w-[250px] lg:w-[300px]">
           <div className="relative aspect-square rounded-xl overflow-hidden shadow-2xl border border-white/10">
             <img 
@@ -54,10 +74,16 @@ const AlbumDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Info - Compact Layout */}
+        {/* Info */}
         <div className="flex-grow flex flex-col justify-end">
           <div className="mb-3">
-             <span className="text-xs font-medium text-primary tracking-wider uppercase mb-1 block">{album.genres.join(' • ')}</span>
+             <div className="flex flex-wrap gap-2 mb-1">
+               {album.genres.map((genre, idx) => (
+                 <span key={idx} className="text-xs font-medium text-primary tracking-wider uppercase bg-primary/10 px-2 py-0.5 rounded">
+                   {genre}
+                 </span>
+               ))}
+             </div>
              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-1 leading-tight">{album.title}</h1>
              <p className="text-lg md:text-xl text-gray-300 font-medium hover:text-white transition-colors cursor-pointer">{album.artist}</p>
           </div>
@@ -96,20 +122,19 @@ const AlbumDetail: React.FC = () => {
                     트랙리스트
                 </h3>
                 <div className="bg-dark-card rounded-xl border border-white/5 overflow-hidden">
-                    {album.tracks ? (
+                    {album.tracks && album.tracks.length > 0 ? (
                         <ul className="divide-y divide-white/5">
                             {album.tracks.map((track, idx) => (
                                 <li key={idx} className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors cursor-pointer group">
                                     <div className="flex items-center gap-4">
                                         <span className="text-gray-500 w-4 text-center text-sm">{idx + 1}</span>
-                                        <span className="text-gray-200 font-medium group-hover:text-primary transition-colors">{track}</span>
+                                        <span className="text-gray-200 font-medium group-hover:text-primary transition-colors text-sm line-clamp-1">{track}</span>
                                     </div>
-                                    <span className="text-xs text-gray-600">3:24</span>
                                 </li>
                             ))}
                         </ul>
                     ) : (
-                        <div className="p-6 text-center text-gray-500 text-sm">트랙 정보 준비 중</div>
+                        <div className="p-6 text-center text-gray-500 text-sm">트랙 정보가 없습니다.</div>
                     )}
                 </div>
             </div>
