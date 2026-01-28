@@ -1,11 +1,11 @@
 {
-  "name": "muzikpick-(뮤직픽)",
+  "name": "muzikpick",
   "version": "0.0.0",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
-      "name": "muzikpick-(뮤직픽)",
+      "name": "muzikpick",
       "version": "0.0.0",
       "dependencies": {
         "@google/genai": "^1.38.0",
