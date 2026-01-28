@@ -32,96 +32,25 @@ initializeApp({
 const db = getDatabase();
 
 // ------------------------------------------------------------------
-// [설정 2] 업로드할 데이터
+// [설정 2] 크롤링 데이터 로드 (bugsData.json)
 // ------------------------------------------------------------------
-const MOCK_ALBUMS = [
-  {
-    id: '1',
-    title: 'Get Up',
-    artist: 'NewJeans',
-    releaseDate: '2023-07-21',
-    coverUrl: 'https://picsum.photos/400/400?random=1',
-    genres: ['K-Pop', 'R&B', 'UK Garage'],
-    criticScore: 88,
-    userScore: 92,
-    description: "NewJeans의 두 번째 EP. UK Garage와 Jersey Club 리듬을 기반으로 한 트렌디한 사운드가 특징이다.",
-    tracks: ['New Jeans', 'Super Shy', 'ETA', 'Cool With You', 'Get Up', 'ASAP']
-  },
-  {
-    id: '2',
-    title: 'SOS',
-    artist: 'SZA',
-    releaseDate: '2022-12-09',
-    coverUrl: 'https://picsum.photos/400/400?random=2',
-    genres: ['R&B', 'Pop', 'Soul'],
-    criticScore: 94,
-    userScore: 89,
-    description: "SZA의 두 번째 스튜디오 앨범. 다양한 장르를 넘나드는 실험적인 시도와 솔직한 가사가 돋보인다."
-  },
-  {
-    id: '3',
-    title: 'I Feel',
-    artist: '(G)I-DLE',
-    releaseDate: '2023-05-15',
-    coverUrl: 'https://picsum.photos/400/400?random=3',
-    genres: ['K-Pop', 'Pop Rock'],
-    criticScore: 78,
-    userScore: 85,
-    description: "자존감과 자신감을 주제로 한 (여자)아이들의 여섯 번째 미니 앨범."
-  },
-  {
-    id: '4',
-    title: 'Midnights',
-    artist: 'Taylor Swift',
-    releaseDate: '2022-10-21',
-    coverUrl: 'https://picsum.photos/400/400?random=4',
-    genres: ['Synth-pop', 'Dream Pop'],
-    criticScore: 85,
-    userScore: 81
-  },
-  {
-    id: '5',
-    title: 'UNFORGIVEN',
-    artist: 'LE SSERAFIM',
-    releaseDate: '2023-05-01',
-    coverUrl: 'https://picsum.photos/400/400?random=5',
-    genres: ['K-Pop', 'Dance'],
-    criticScore: 72,
-    userScore: 79
-  },
-  {
-    id: '6',
-    title: 'Golden',
-    artist: 'Jung Kook',
-    releaseDate: '2023-11-03',
-    coverUrl: 'https://picsum.photos/400/400?random=6',
-    genres: ['Pop', 'R&B'],
-    criticScore: 75,
-    userScore: 96,
-    description: "정국의 황금빛 순간들을 담아낸 첫 솔로 앨범."
-  },
-    {
-    id: '7',
-    title: 'UTOPIA',
-    artist: 'Travis Scott',
-    releaseDate: '2023-07-28',
-    coverUrl: 'https://picsum.photos/400/400?random=7',
-    genres: ['Hip Hop', 'Trap'],
-    criticScore: 86,
-    userScore: 90
-  },
-  {
-    id: '8',
-    title: 'GUTS',
-    artist: 'Olivia Rodrigo',
-    releaseDate: '2023-09-08',
-    coverUrl: 'https://picsum.photos/400/400?random=8',
-    genres: ['Pop Rock', 'Alternative Rock'],
-    criticScore: 91,
-    userScore: 88
-  }
-];
+const bugsDataPath = path.join(__dirname, 'bugsData.json');
+let crawledAlbums = [];
 
+if (fs.existsSync(bugsDataPath)) {
+  try {
+    crawledAlbums = JSON.parse(fs.readFileSync(bugsDataPath, 'utf8'));
+    console.log(`📂 bugsData.json 로드 성공: ${crawledAlbums.length}개의 앨범 발견`);
+  } catch (e) {
+    console.error("❌ bugsData.json 파싱 실패:", e);
+  }
+} else {
+  console.warn("⚠️ bugsData.json 파일이 없습니다. 크롤링을 먼저 실행하세요 (node scripts/crawlBugs.js).");
+}
+
+// ------------------------------------------------------------------
+// [설정 3] MOCK 리뷰 데이터 (기존 유지)
+// ------------------------------------------------------------------
 const MOCK_REVIEWS = [
   {
     id: 'r1',
@@ -155,11 +84,26 @@ async function seedDatabase() {
 
     const albumsRef = db.ref("albums");
     const albumsData = {};
-    MOCK_ALBUMS.forEach(album => {
-      albumsData[album.id] = album;
+
+    // 크롤링 데이터 변환 및 추가
+    // UI 표시를 위해 임의의 점수(score)를 부여합니다. (크롤링 시 제외했으므로)
+    crawledAlbums.forEach(album => {
+      albumsData[album.id] = {
+        ...album,
+        // 70~98 사이의 랜덤 점수 부여
+        criticScore: Math.floor(Math.random() * (98 - 70 + 1)) + 70,
+        userScore: Math.floor(Math.random() * (99 - 75 + 1)) + 75,
+        // 설명이 비어있다면 기본 문구 추가
+        description: album.description || `아티스트 ${album.artist}의 앨범 [${album.title}]입니다. ${album.genres.join(', ')} 장르의 매력을 느껴보세요.`
+      };
     });
-    await albumsRef.set(albumsData);
-    console.log(`✅ 앨범 데이터 ${MOCK_ALBUMS.length}개 업로드 완료`);
+
+    if (Object.keys(albumsData).length > 0) {
+      await albumsRef.set(albumsData);
+      console.log(`✅ 앨범 데이터 ${Object.keys(albumsData).length}개 업로드 완료`);
+    } else {
+      console.log("⚠️ 업로드할 앨범 데이터가 없습니다.");
+    }
 
     const reviewsRef = db.ref("reviews");
     const reviewsData = {};
