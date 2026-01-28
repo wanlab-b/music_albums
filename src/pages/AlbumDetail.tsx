@@ -27,12 +27,12 @@ const AlbumDetail: React.FC = () => {
   const criticScoreColor = album.criticScore >= 80 ? 'bg-emerald-500' : album.criticScore >= 60 ? 'bg-yellow-500' : 'bg-red-500';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row gap-8 lg:gap-12 mb-12">
-        {/* Cover Art */}
-        <div className="flex-shrink-0 w-full md:w-[350px] lg:w-[400px]">
-          <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+      <div className="flex flex-col md:flex-row gap-6 lg:gap-10 mb-10">
+        {/* Cover Art - Reduced Size */}
+        <div className="flex-shrink-0 w-full md:w-[250px] lg:w-[300px]">
+          <div className="relative aspect-square rounded-xl overflow-hidden shadow-2xl border border-white/10">
             <img 
               src={album.coverUrl} 
               alt={album.title} 
@@ -40,49 +40,49 @@ const AlbumDetail: React.FC = () => {
             />
           </div>
           
-          <div className="flex gap-4 mt-6 justify-center">
-            <button className="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-indigo-500 text-white py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg shadow-primary/20">
-              <Play className="w-5 h-5 fill-current" />
+          <div className="flex gap-3 mt-4 justify-center">
+            <button className="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-indigo-500 text-white py-2.5 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg shadow-primary/20 text-sm">
+              <Play className="w-4 h-4 fill-current" />
               <span>재생</span>
             </button>
-            <button className="p-3 rounded-full bg-dark-card border border-white/10 hover:bg-white/10 text-gray-300 transition-colors">
-              <Heart className="w-6 h-6" />
+            <button className="p-2.5 rounded-full bg-dark-card border border-white/10 hover:bg-white/10 text-gray-300 transition-colors">
+              <Heart className="w-5 h-5" />
             </button>
-            <button className="p-3 rounded-full bg-dark-card border border-white/10 hover:bg-white/10 text-gray-300 transition-colors">
-              <Share2 className="w-6 h-6" />
+            <button className="p-2.5 rounded-full bg-dark-card border border-white/10 hover:bg-white/10 text-gray-300 transition-colors">
+              <Share2 className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Info */}
+        {/* Info - Compact Layout */}
         <div className="flex-grow flex flex-col justify-end">
-          <div className="mb-4">
-             <span className="text-sm font-medium text-primary tracking-wider uppercase mb-2 block">{album.genres.join(' • ')}</span>
-             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-2 leading-tight">{album.title}</h1>
-             <p className="text-xl md:text-2xl text-gray-300 font-medium hover:text-white transition-colors cursor-pointer">{album.artist}</p>
+          <div className="mb-3">
+             <span className="text-xs font-medium text-primary tracking-wider uppercase mb-1 block">{album.genres.join(' • ')}</span>
+             <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-1 leading-tight">{album.title}</h1>
+             <p className="text-lg md:text-xl text-gray-300 font-medium hover:text-white transition-colors cursor-pointer">{album.artist}</p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 my-6">
-            <div className="bg-dark-card/50 rounded-xl p-4 border border-white/5 backdrop-blur-sm">
-               <span className="text-xs text-gray-500 uppercase tracking-wide block mb-1">Critic Score</span>
-               <div className="flex items-center gap-3">
-                 <div className={`w-3 h-3 rounded-full ${criticScoreColor}`}></div>
-                 <span className="text-3xl font-bold text-white">{album.criticScore}</span>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 my-4">
+            <div className="bg-dark-card/50 rounded-lg p-3 border border-white/5 backdrop-blur-sm">
+               <span className="text-[10px] text-gray-500 uppercase tracking-wide block mb-1">Critic Score</span>
+               <div className="flex items-center gap-2">
+                 <div className={`w-2.5 h-2.5 rounded-full ${criticScoreColor}`}></div>
+                 <span className="text-2xl font-bold text-white">{album.criticScore}</span>
                </div>
             </div>
-            <div className="bg-dark-card/50 rounded-xl p-4 border border-white/5 backdrop-blur-sm">
-               <span className="text-xs text-gray-500 uppercase tracking-wide block mb-1">User Score</span>
-               <div className="flex items-center gap-3">
-                 <span className={`text-3xl font-bold ${userScoreColor}`}>{album.userScore}</span>
+            <div className="bg-dark-card/50 rounded-lg p-3 border border-white/5 backdrop-blur-sm">
+               <span className="text-[10px] text-gray-500 uppercase tracking-wide block mb-1">User Score</span>
+               <div className="flex items-center gap-2">
+                 <span className={`text-2xl font-bold ${userScoreColor}`}>{album.userScore}</span>
                </div>
             </div>
-             <div className="hidden sm:block bg-dark-card/50 rounded-xl p-4 border border-white/5 backdrop-blur-sm">
-               <span className="text-xs text-gray-500 uppercase tracking-wide block mb-1">Release Date</span>
-               <span className="text-lg font-semibold text-gray-200 block mt-1">{album.releaseDate}</span>
+             <div className="hidden sm:block bg-dark-card/50 rounded-lg p-3 border border-white/5 backdrop-blur-sm">
+               <span className="text-[10px] text-gray-500 uppercase tracking-wide block mb-1">Release Date</span>
+               <span className="text-base font-semibold text-gray-200 block mt-0.5">{album.releaseDate}</span>
             </div>
           </div>
 
-          <div className="text-gray-300 leading-relaxed text-base md:text-lg mb-6">
+          <div className="text-gray-300 leading-relaxed text-sm md:text-base mb-2">
             {album.description || "이 앨범에 대한 설명이 아직 등록되지 않았습니다."}
           </div>
         </div>
