@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getAlbumById } from '../services/albumService';
-import { Album } from '../types';
-import { MOCK_REVIEWS } from '../constants'; // 리뷰는 아직 Mock 유지
-import ReviewItem from '../components/ReviewItem';
+import { getAlbumById } from '@/services/albumService';
+import { Album } from '@/types';
+import { MOCK_REVIEWS } from '@/constants'; // 리뷰는 아직 Mock 유지
+import ReviewItem from '@/components/ReviewItem';
 import { Play, Heart, Share2, PenTool, Star, Loader2 } from 'lucide-react';
 
 const AlbumDetail: React.FC = () => {
