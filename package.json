@@ -10,15 +10,15 @@
     "seed": "node scripts/seedData.js"
   },
   "dependencies": {
-  "@google/genai": "^1.38.0",
-  "@react-oauth/google": "0.12.1",
-  "axios": "1.6.7",
-  "firebase": "^10.8.0",
-  "lucide-react": "^0.563.0",
-  "react": "^19.2.3",
-  "react-dom": "^19.2.3",
-  "react-router-dom": "^7.13.0"
-},
+    "@google/genai": "^1.38.0",
+    "@react-oauth/google": "0.12.1",
+    "axios": "1.6.7",
+    "firebase": "^10.8.0",
+    "lucide-react": "^0.563.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-router-dom": "^7.13.0"
+  },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.0",
