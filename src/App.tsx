@@ -50,7 +50,7 @@ const Footer: React.FC = () => (
 );
 
 const App: React.FC = () => {
-  const GOOGLE_CLIENT_ID = "892616754420-ll2ouebf2sbrdvlhjasq5co70ffl0u8i.apps.googleusercontent.com";
+  const GOOGLE_CLIENT_ID = "892616754420-o6d1r1ntmgkfhq90djvdumg0sn0pnk97.apps.googleusercontent.com";
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
