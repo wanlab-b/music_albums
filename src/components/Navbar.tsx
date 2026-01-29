@@ -9,6 +9,7 @@ const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const profileRef = useRef<HTMLDivElement>(null);
 
   // Close profile dropdown when clicking outside
@@ -27,6 +28,21 @@ const Navbar: React.FC = () => {
     setIsProfileOpen(false);
     navigate('/');
   };
+
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const query = searchQuery.trim();
+    if (!query) return;
+    navigate(`/search?q=${encodeURIComponent(query)}`);
+    setIsMobileMenuOpen(false);
+  };
+
+  useEffect(() => {
+    if (location.pathname === '/search') {
+      const params = new URLSearchParams(location.search);
+      setSearchQuery(params.get('q') ?? '');
+    }
+  }, [location.pathname, location.search]);
 
   const navItems = [
     { label: '베스트 앨범', path: '/best-albums' },
@@ -55,14 +71,17 @@ const Navbar: React.FC = () => {
 
             {/* Desktop Search */}
             <div className="hidden md:block flex-1 max-w-lg mx-8">
-              <div className="relative group">
+              <form className="relative group" onSubmit={handleSearchSubmit}>
                 <input 
                   type="text" 
                   placeholder="아티스트, 앨범, 트랙 검색..." 
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
                   className="w-full bg-dark-card border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder-gray-500 group-hover:border-white/20"
+                  aria-label="검색"
                 />
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-gray-300 transition-colors" />
-              </div>
+              </form>
             </div>
 
             {/* Actions */}
@@ -160,14 +179,17 @@ const Navbar: React.FC = () => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-dark-bg border-b border-white/5 px-4 py-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
-           <div className="relative">
+           <form className="relative" onSubmit={handleSearchSubmit}>
                 <input 
                   type="text" 
                   placeholder="검색..." 
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
                   className="w-full bg-dark-card border border-white/10 rounded-lg py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-primary/50"
+                  aria-label="검색"
                 />
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            </div>
+            </form>
             <div className="grid grid-cols-2 gap-4">
               {navItems.map((item, index) => {
                 const isActive = location.pathname === item.path;

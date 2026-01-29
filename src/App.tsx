@@ -8,6 +8,7 @@ import Discover from './pages/Discover';
 import NewReleases from './pages/NewReleases';
 import Genres from './pages/Genres';
 import Community from './pages/Community';
+import Search from './pages/Search';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import MyPage from './pages/MyPage';
@@ -66,6 +67,7 @@ const App: React.FC = () => {
                 <Route path="/new-releases" element={<NewReleases />} />
                 <Route path="/genres" element={<Genres />} />
                 <Route path="/community" element={<Community />} />
+                <Route path="/search" element={<Search />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/mypage" element={<MyPage />} />
