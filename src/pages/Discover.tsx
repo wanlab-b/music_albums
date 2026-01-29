@@ -1,6 +1,6 @@
 import React from 'react';
-import { MOCK_ALBUMS } from '../constants';
-import AlbumCard from '../components/AlbumCard';
+import { MOCK_ALBUMS } from '@/constants';
+import AlbumCard from '@/components/AlbumCard';
 import { Compass, ChevronDown, Tag, Calendar, TrendingUp, Mic2, Heart, Flame, Sparkles, Radio } from 'lucide-react';
 
 const Discover: React.FC = () => {

@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Filter, ChevronDown, Check, Disc, Music2, Loader2 } from 'lucide-react';
-import { getAllAlbums } from '../services/albumService';
-import { Album } from '../types';
+import { getAllAlbums } from '@/services/albumService';
+import { Album } from '@/types';
 
 const BestAlbums: React.FC = () => {
   const [albums, setAlbums] = useState<Album[]>([]);

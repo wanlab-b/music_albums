@@ -30,7 +30,7 @@ export const MOCK_ALBUMS: Album[] = [
     artist: '(G)I-DLE',
     releaseDate: '2023-05-15',
     coverUrl: 'https://picsum.photos/400/400?random=3',
-    genres: ['K-Pop', 'Pop Rock'],
+    genres: ['K-Pop', 'Pop Rock', 'Rock'],
     criticScore: 78,
     userScore: 85,
     description: "자존감과 자신감을 주제로 한 (여자)아이들의 여섯 번째 미니 앨범."
@@ -41,7 +41,7 @@ export const MOCK_ALBUMS: Album[] = [
     artist: 'Taylor Swift',
     releaseDate: '2022-10-21',
     coverUrl: 'https://picsum.photos/400/400?random=4',
-    genres: ['Synth-pop', 'Dream Pop'],
+    genres: ['Synth-pop', 'Dream Pop', 'Electronic'],
     criticScore: 85,
     userScore: 81
   },
@@ -82,7 +82,7 @@ export const MOCK_ALBUMS: Album[] = [
     artist: 'Olivia Rodrigo',
     releaseDate: '2023-09-08',
     coverUrl: 'https://picsum.photos/400/400?random=8',
-    genres: ['Pop Rock', 'Alternative Rock'],
+    genres: ['Pop Rock', 'Alternative Rock', 'Rock'],
     criticScore: 91,
     userScore: 88
   }

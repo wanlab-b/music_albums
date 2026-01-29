@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import AlbumCard from '../components/AlbumCard';
-import { getAllAlbums } from '../services/albumService';
-import { Album } from '../types';
+import AlbumCard from '@/components/AlbumCard';
+import { getAllAlbums } from '@/services/albumService';
+import { Album } from '@/types';
 import { ArrowRight, Flame, Calendar, Star, Loader2 } from 'lucide-react';
 
 const Home: React.FC = () => {
