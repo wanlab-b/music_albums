@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "npx vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "crawl": "node scripts/crawlBugs.js",
