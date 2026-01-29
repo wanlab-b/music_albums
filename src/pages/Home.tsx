@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import AlbumCard from '@/components/AlbumCard';
 import { getAllAlbums } from '@/services/albumService';
 import { Album } from '@/types';
@@ -38,7 +39,7 @@ const Home: React.FC = () => {
   return (
     <div className="flex flex-col gap-12 pb-12">
       {/* Hero / Featured Section */}
-      <section className="relative h-[400px] w-full overflow-hidden rounded-3xl mt-6 mx-auto max-w-7xl">
+      <section className="relative h-[320px] sm:h-[360px] w-full overflow-hidden rounded-3xl mt-6 mx-auto max-w-7xl">
         <div className="absolute inset-0">
           <img 
             src="https://picsum.photos/1200/600?random=hero" 
@@ -72,7 +73,9 @@ const Home: React.FC = () => {
               <Flame className="w-6 h-6 text-orange-500" />
               <h2 className="text-2xl font-bold text-white">실시간 트렌딩</h2>
             </div>
-            <button className="text-sm text-gray-400 hover:text-white transition-colors">더보기</button>
+            <Link to="/discover" className="text-sm text-gray-400 hover:text-white transition-colors">
+              더보기
+            </Link>
           </div>
           {trendingAlbums.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -92,7 +95,9 @@ const Home: React.FC = () => {
               <Calendar className="w-6 h-6 text-primary" />
               <h2 className="text-2xl font-bold text-white">최신 발매</h2>
             </div>
-            <button className="text-sm text-gray-400 hover:text-white transition-colors">더보기</button>
+            <Link to="/new-releases" className="text-sm text-gray-400 hover:text-white transition-colors">
+              더보기
+            </Link>
           </div>
           {newReleases.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">

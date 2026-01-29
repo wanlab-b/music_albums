@@ -18,6 +18,14 @@ const Community: React.FC = () => {
     { id: 4, user: 'KpopMaster', userAvatar: 'https://picsum.photos/100/100?random=21', action: 'liked', target: 'Review by CriticWannabe', time: '2 hours ago', content: null },
   ];
 
+  // Mock Data for Today's Top Liked Comments
+  const topComments = [
+    { id: 1, user: 'VinylDreamer', avatar: 'https://picsum.photos/100/100?random=31', target: 'Radiohead - In Rainbows', content: '어둠 속에서 빛나는 온도감. 들을 때마다 새로워요.', likes: 142 },
+    { id: 2, user: 'SynthWave', avatar: 'https://picsum.photos/100/100?random=32', target: 'Daft Punk - Discovery', content: '디스코와 미래가 만난 순간. 완벽한 트랙 리스트.', likes: 118 },
+    { id: 3, user: 'LoFiPlanet', avatar: 'https://picsum.photos/100/100?random=33', target: 'Nujabes - Modal Soul', content: '이 앨범만큼 마음을 정리해주는 음악이 또 있을까요?', likes: 97 },
+    { id: 4, user: 'AltCity', avatar: 'https://picsum.photos/100/100?random=34', target: 'Phoenix - Wolfgang Amadeus Phoenix', content: '기분을 리셋하고 싶을 때 무조건 이 앨범.', likes: 83 },
+  ];
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Header */}
@@ -137,6 +145,41 @@ const Community: React.FC = () => {
                             <button className="p-2 rounded-full bg-white/5 text-gray-400 hover:bg-primary hover:text-white transition-colors">
                                 <UserPlus className="w-4 h-4" />
                             </button>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Top Liked Comments Today */}
+            <div className="bg-dark-card rounded-2xl p-6 border border-white/5">
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <Heart className="w-5 h-5 text-rose-400" />
+                        오늘 인기 댓글 순위
+                    </h3>
+                    <span className="text-xs text-gray-500">TODAY</span>
+                </div>
+
+                <div className="space-y-4">
+                    {topComments.map((comment, index) => (
+                        <div key={comment.id} className="flex items-start gap-3">
+                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/5 text-xs font-bold text-white">
+                                {index + 1}
+                            </div>
+                            <img src={comment.avatar} alt={comment.user} className="w-9 h-9 rounded-full object-cover ring-2 ring-white/5" />
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-sm font-bold text-white truncate">{comment.user}</span>
+                                    <span className="text-[10px] text-gray-500 truncate">on {comment.target}</span>
+                                </div>
+                                <p className="text-xs text-gray-300 leading-relaxed line-clamp-2">
+                                    “{comment.content}”
+                                </p>
+                                <div className="mt-2 inline-flex items-center gap-1 text-[10px] text-rose-300 bg-rose-500/10 px-2 py-0.5 rounded-full">
+                                    <Heart className="w-3 h-3 fill-rose-400" />
+                                    {comment.likes.toLocaleString()}
+                                </div>
+                            </div>
                         </div>
                     ))}
                 </div>

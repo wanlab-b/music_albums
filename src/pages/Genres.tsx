@@ -24,16 +24,25 @@ const ScoreBar = ({ score, count }: { score: number; count: number }) => {
   );
 };
 
-const GenreSection = ({ title, genre, searchQuery }: { title: string, genre: string, searchQuery: string }) => {
+const GenreSection = ({
+  title,
+  genre,
+  searchQuery,
+}: {
+  title: string;
+  genre: string;
+  searchQuery: string;
+}) => {
   // Filter albums by genre and search query
-  const displayAlbums = MOCK_ALBUMS
+  const allAlbums = MOCK_ALBUMS
     .filter(album => album.genres.includes(genre))
     .filter(album =>
       album.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       album.artist.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    .sort((a, b) => b.criticScore - a.criticScore)
-    .slice(0, 12);
+    .sort((a, b) => b.criticScore - a.criticScore);
+
+  const displayAlbums = allAlbums.slice(0, 12);
 
   if (displayAlbums.length === 0) {
     return null;
@@ -43,7 +52,12 @@ const GenreSection = ({ title, genre, searchQuery }: { title: string, genre: str
     <div className="mb-10">
       <div className="flex items-end justify-between border-b border-white/10 pb-2 mb-6">
         <h2 className="text-lg font-bold text-white uppercase tracking-wider">{title}</h2>
-        <button className="text-xs font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide">View More</button>
+        <Link
+          to={`/search?q=${encodeURIComponent(genre)}`}
+          className="text-xs font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide"
+        >
+          더보기
+        </Link>
       </div>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-6">
@@ -112,7 +126,12 @@ const Genres: React.FC = () => {
 
                 {filteredAlbumCount > 0 ? (
                   allGenres.map(genre => (
-                    <GenreSection key={genre} title={genre} genre={genre} searchQuery={searchQuery} />
+                    <GenreSection
+                      key={genre}
+                      title={genre}
+                      genre={genre}
+                      searchQuery={searchQuery}
+                    />
                   ))
                 ) : (
                   <div className="text-center text-gray-400 mt-16">
