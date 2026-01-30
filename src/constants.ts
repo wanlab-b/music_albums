@@ -1,6 +1,21 @@
 import { Album, Review } from './types';
 
+// TEST_DUMMY_ALBUM: delete this export when removing test data.
+export const TEST_DUMMY_ALBUM: Album = {
+  id: 'TEST_DUMMY_001',
+  title: '[TEST] Dummy Album',
+  artist: 'Test Artist',
+  releaseDate: '2026-01-29',
+  coverUrl: 'https://picsum.photos/400/400?random=999',
+  genres: ['Test'],
+  criticScore: 99,
+  userScore: 99,
+  description: '[TEST] Dummy album for UI testing.',
+  tracks: ['[TEST] Track 01', '[TEST] Track 02']
+};
+
 export const MOCK_ALBUMS: Album[] = [
+  TEST_DUMMY_ALBUM,
   {
     id: '1',
     title: 'Get Up',

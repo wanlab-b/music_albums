@@ -1,15 +1,68 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getAlbumById } from '@/services/albumService';
-import { Album } from '@/types';
+import { Album, Review } from '@/types';
 import { MOCK_REVIEWS } from '@/constants'; // 리뷰는 아직 Mock 유지
 import ReviewItem from '@/components/ReviewItem';
 import { Play, Heart, Share2, PenTool, Star, Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const AlbumDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [album, setAlbum] = useState<Album | null>(null);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const [reviews, setReviews] = useState<Review[]>(() => [...MOCK_REVIEWS]);
+  const [ratingStars, setRatingStars] = useState(0);
+  const [reviewContent, setReviewContent] = useState('');
+  const [formError, setFormError] = useState('');
+
+  const sortedReviews = useMemo(() => {
+    return reviews
+      .map((review, index) => ({ review, index }))
+      .sort((a, b) => {
+        const aTime = new Date(a.review.date).getTime();
+        const bTime = new Date(b.review.date).getTime();
+        if (aTime === bTime) {
+          return a.index - b.index;
+        }
+        return bTime - aTime;
+      })
+      .map((entry) => entry.review);
+  }, [reviews]);
+
+  const handleSubmitReview = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setFormError('');
+    if (!user) {
+      setFormError('리뷰를 작성하려면 로그인해주세요.');
+      return;
+    }
+    const trimmedContent = reviewContent.trim();
+    if (!trimmedContent) {
+      setFormError('리뷰 내용을 입력해주세요.');
+      return;
+    }
+    if (ratingStars === 0) {
+      setFormError('평점을 선택해주세요.');
+      return;
+    }
+
+    const rating = ratingStars * 20;
+    const date = new Date().toISOString().slice(0, 10);
+    const newReview: Review = {
+      id: `r-${Date.now()}`,
+      username: user.name,
+      rating,
+      content: trimmedContent,
+      date,
+      avatarUrl: user.avatarUrl
+    };
+
+    setReviews((prev) => [newReview, ...prev]);
+    setReviewContent('');
+    setRatingStars(0);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,6 +98,7 @@ const AlbumDetail: React.FC = () => {
   // Calculate scores
   const userScoreColor = album.userScore >= 80 ? 'text-emerald-400' : album.userScore >= 60 ? 'text-yellow-400' : 'text-red-400';
   const criticScoreColor = album.criticScore >= 80 ? 'bg-emerald-500' : album.criticScore >= 60 ? 'bg-yellow-500' : 'bg-red-500';
+  const reviewCount = reviews.length;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
@@ -91,15 +145,22 @@ const AlbumDetail: React.FC = () => {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 my-4">
             <div className="bg-dark-card/50 rounded-lg p-3 border border-white/5 backdrop-blur-sm">
                <span className="text-[10px] text-gray-500 uppercase tracking-wide block mb-1">Critic Score</span>
-               <div className="flex items-center gap-2">
-                 <div className={`w-2.5 h-2.5 rounded-full ${criticScoreColor}`}></div>
-                 <span className="text-2xl font-bold text-white">{album.criticScore}</span>
+               <div className="flex items-center justify-between">
+                 <div className="flex items-center gap-2">
+                   <div className={`w-2.5 h-2.5 rounded-full ${criticScoreColor}`}></div>
+                   <span className="text-2xl font-bold text-white">{album.criticScore}</span>
+                 </div>
+                 <span className="text-sm font-semibold text-gray-500">({reviewCount})</span>
                </div>
             </div>
             <div className="bg-dark-card/50 rounded-lg p-3 border border-white/5 backdrop-blur-sm">
                <span className="text-[10px] text-gray-500 uppercase tracking-wide block mb-1">User Score</span>
-               <div className="flex items-center gap-2">
-                 <span className={`text-2xl font-bold ${userScoreColor}`}>{album.userScore}</span>
+               <div className="flex items-center justify-between">
+                 <div className="flex items-center gap-2">
+                   <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
+                   <span className={`text-2xl font-bold ${userScoreColor}`}>{album.userScore}</span>
+                 </div>
+                 <span className="text-sm font-semibold text-gray-500">({reviewCount})</span>
                </div>
             </div>
              <div className="hidden sm:block bg-dark-card/50 rounded-lg p-3 border border-white/5 backdrop-blur-sm">
@@ -141,23 +202,63 @@ const AlbumDetail: React.FC = () => {
             
             <div className="p-6 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-white/5">
                 <h3 className="text-lg font-bold text-white mb-2">당신의 평가는?</h3>
-                <p className="text-sm text-gray-400 mb-4">로그인하고 나만의 평점과 리뷰를 남겨보세요.</p>
-                <div className="flex justify-center mb-4 gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                        <Star key={star} className="w-8 h-8 text-gray-600 hover:text-yellow-400 cursor-pointer transition-colors" />
-                    ))}
-                </div>
-                <button className="w-full flex items-center justify-center gap-2 py-2.5 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm font-medium transition-colors">
+                <p className="text-sm text-gray-400 mb-4">
+                  {user ? '평점과 리뷰를 남겨보세요.' : '로그인하고 나만의 평점과 리뷰를 남겨보세요.'}
+                </p>
+                {user ? (
+                  <form onSubmit={handleSubmitReview} className="space-y-4">
+                    <div className="flex items-center justify-center gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setRatingStars(star)}
+                              className="transition-colors"
+                              aria-label={`별점 ${star}점`}
+                            >
+                              <Star
+                                className={`w-8 h-8 ${ratingStars >= star ? 'text-yellow-400' : 'text-gray-600'} hover:text-yellow-400`}
+                              />
+                            </button>
+                        ))}
+                    </div>
+                    <div className="text-center text-xs text-gray-400">
+                      선택한 평점: <span className="text-white font-semibold">{ratingStars * 20}</span> / 100
+                    </div>
+                    <textarea
+                      value={reviewContent}
+                      onChange={(event) => setReviewContent(event.target.value)}
+                      rows={4}
+                      placeholder="이 앨범에 대한 솔직한 리뷰를 남겨주세요."
+                      className="w-full rounded-lg bg-dark-card border border-white/10 text-sm text-gray-200 p-3 focus:outline-none focus:border-primary"
+                    />
+                    {formError ? (
+                      <p className="text-xs text-red-400">{formError}</p>
+                    ) : null}
+                    <button
+                      type="submit"
+                      className="w-full flex items-center justify-center gap-2 py-2.5 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm font-medium transition-colors"
+                    >
+                        <PenTool className="w-4 h-4" />
+                        리뷰 작성하기
+                    </button>
+                  </form>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm font-medium transition-colors"
+                  >
                     <PenTool className="w-4 h-4" />
-                    리뷰 작성하기
-                </button>
+                    로그인하고 리뷰 작성하기
+                  </Link>
+                )}
             </div>
         </div>
 
         {/* Reviews */}
         <div className="lg:col-span-2">
           <div className="flex items-center justify-between mb-6">
-             <h3 className="text-2xl font-bold text-white">유저 리뷰 <span className="text-gray-500 text-lg font-normal ml-1">({MOCK_REVIEWS.length})</span></h3>
+             <h3 className="text-2xl font-bold text-white">유저 리뷰 <span className="text-gray-500 text-lg font-normal ml-1">({reviewCount})</span></h3>
              
              <div className="flex gap-2">
                 <select className="bg-dark-card border border-white/10 text-sm text-gray-300 rounded-lg px-3 py-1.5 outline-none focus:border-primary">
@@ -169,7 +270,7 @@ const AlbumDetail: React.FC = () => {
           </div>
           
           <div className="space-y-4">
-            {MOCK_REVIEWS.map((review) => (
+            {sortedReviews.map((review) => (
               <ReviewItem key={review.id} review={review} />
             ))}
           </div>
