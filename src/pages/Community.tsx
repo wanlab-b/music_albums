@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, MessageSquare, Star, Trophy, UserPlus, Heart, TrendingUp } from 'lucide-react';
+import { Users, MessageSquare, Star, Trophy, UserPlus, Heart, TrendingUp, Music, Radio } from 'lucide-react';
 
 const Community: React.FC = () => {
   // Mock Data for Top Users
@@ -24,6 +24,15 @@ const Community: React.FC = () => {
     { id: 2, user: 'SynthWave', avatar: 'https://picsum.photos/100/100?random=32', target: 'Daft Punk - Discovery', content: '디스코와 미래가 만난 순간. 완벽한 트랙 리스트.', likes: 118 },
     { id: 3, user: 'LoFiPlanet', avatar: 'https://picsum.photos/100/100?random=33', target: 'Nujabes - Modal Soul', content: '이 앨범만큼 마음을 정리해주는 음악이 또 있을까요?', likes: 97 },
     { id: 4, user: 'AltCity', avatar: 'https://picsum.photos/100/100?random=34', target: 'Phoenix - Wolfgang Amadeus Phoenix', content: '기분을 리셋하고 싶을 때 무조건 이 앨범.', likes: 83 },
+  ];
+
+  const genreBoards = [
+    { id: 'g1', name: 'K-Pop', threads: 1240, postsToday: 58, color: 'from-pink-500/20 to-red-500/10' },
+    { id: 'g2', name: 'Hip Hop', threads: 980, postsToday: 41, color: 'from-emerald-500/20 to-teal-500/10' },
+    { id: 'g3', name: 'Indie', threads: 760, postsToday: 33, color: 'from-indigo-500/20 to-sky-500/10' },
+    { id: 'g4', name: 'R&B', threads: 640, postsToday: 28, color: 'from-rose-500/20 to-orange-500/10' },
+    { id: 'g5', name: 'Jazz', threads: 520, postsToday: 19, color: 'from-amber-500/20 to-yellow-500/10' },
+    { id: 'g6', name: 'Rock', threads: 710, postsToday: 26, color: 'from-slate-500/20 to-zinc-500/10' },
   ];
 
   return (
@@ -55,8 +64,41 @@ const Community: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         
-        {/* Main Content: Activity Feed */}
-        <div className="lg:col-span-2 space-y-8">
+        {/* Main Content: Genre Boards + Activity Feed */}
+        <div className="lg:col-span-2 space-y-10">
+            <div className="bg-dark-card/60 border border-white/5 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                        <Radio className="w-5 h-5 text-primary" />
+                        장르별 게시판
+                    </h2>
+                    <button className="text-sm text-gray-400 hover:text-white transition-colors">전체보기</button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {genreBoards.map((board) => (
+                        <button
+                            key={board.id}
+                            className={`text-left rounded-xl border border-white/10 p-4 bg-gradient-to-br ${board.color} hover:border-white/30 transition-all group`}
+                        >
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <Music className="w-4 h-4 text-white/80" />
+                                    <span className="text-sm font-bold text-white">{board.name}</span>
+                                </div>
+                                <span className="text-[10px] text-gray-300 bg-white/10 px-2 py-0.5 rounded-full">
+                                    오늘 {board.postsToday}건
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-gray-300">
+                                <span>스레드 {board.threads.toLocaleString()}</span>
+                                <span>•</span>
+                                <span className="text-primary">입장하기</span>
+                            </div>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             <div className="flex items-center justify-between">
                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <TrendingUp className="w-5 h-5 text-emerald-400" />
