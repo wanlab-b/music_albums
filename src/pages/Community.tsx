@@ -173,7 +173,7 @@ const Community: React.FC = () => {
                         <Trophy className="w-5 h-5 text-yellow-500" />
                         이달의 리뷰어
                     </h3>
-                    <a href="#" className="text-xs text-gray-500 hover:text-white">전체보기</a>
+                    <Link to="/community/reviewer-of-the-month" className="text-xs text-gray-500 hover:text-white">전체보기</Link>
                 </div>
                 
                 <div className="space-y-4">
