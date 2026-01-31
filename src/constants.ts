@@ -1,4 +1,11 @@
-import { Album, Review } from './types';
+import { Album, Review, User } from './types';
+
+export const ADMIN_USER: User = {
+  id: 'admin',
+  name: '관리자',
+  email: 'admin@muzikpick.com',
+  avatarUrl: 'https://picsum.photos/100/100?random=0'
+};
 
 // TEST_DUMMY_ALBUM: delete this export when removing test data.
 export const TEST_DUMMY_ALBUM: Album = {

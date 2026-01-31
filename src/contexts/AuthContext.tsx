@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { User } from '../types';
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
+import { ADMIN_USER } from '@/constants';
 
 interface AuthContextType {
   user: User | null;
@@ -18,9 +19,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Check for persisted user on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem('muzikpick_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    // For local testing, automatically log in the admin user
+    if (import.meta.env.DEV) {
+      setUser(ADMIN_USER);
+      localStorage.setItem('muzikpick_user', JSON.stringify(ADMIN_USER));
+    } else {
+      const storedUser = localStorage.getItem('muzikpick_user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
     }
     setIsLoading(false);
   }, []);

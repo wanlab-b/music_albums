@@ -4,6 +4,7 @@ import { getAlbumById } from '@/services/albumService';
 import { Album, Review } from '@/types';
 import { MOCK_REVIEWS } from '@/constants'; // 리뷰는 아직 Mock 유지
 import ReviewItem from '@/components/ReviewItem';
+import MusicSlider from '@/components/MusicSlider';
 import { Play, Heart, Share2, PenTool, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -13,7 +14,7 @@ const AlbumDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const [reviews, setReviews] = useState<Review[]>(() => [...MOCK_REVIEWS]);
-  const [selectedMoodRating, setSelectedMoodRating] = useState<number | null>(null);
+  const [ratingValue, setRatingValue] = useState<number>(50);
   const [reviewContent, setReviewContent] = useState('');
   const [formError, setFormError] = useState('');
 
@@ -43,12 +44,12 @@ const AlbumDetail: React.FC = () => {
       setFormError('리뷰 내용을 입력해주세요.');
       return;
     }
-    if (selectedMoodRating === null) {
-      setFormError('토글을 선택해주세요.');
+    if (ratingValue === null) {
+      setFormError('점수를 선택해주세요.');
       return;
     }
 
-    const rating = selectedMoodRating;
+    const rating = ratingValue;
     const date = new Date().toISOString().slice(0, 10);
     const newReview: Review = {
       id: `r-${Date.now()}`,
@@ -61,7 +62,7 @@ const AlbumDetail: React.FC = () => {
 
     setReviews((prev) => [newReview, ...prev]);
     setReviewContent('');
-    setSelectedMoodRating(null);
+    setRatingValue(50);
   };
 
   useEffect(() => {
@@ -207,37 +208,8 @@ const AlbumDetail: React.FC = () => {
                 </p>
                 {user ? (
                   <form onSubmit={handleSubmitReview} className="space-y-4">
-                    <div className="flex flex-wrap justify-center gap-2">
-                      {[
-                        { label: '비트 폭발', rating: 95 },
-                        { label: '드라이브 각', rating: 85 },
-                        { label: '무드 체인지', rating: 75 },
-                        { label: '밤감성', rating: 65 },
-                        { label: '잔잔 힐링', rating: 55 }
-                      ].map((option) => {
-                        const isActive = selectedMoodRating === option.rating;
-                        return (
-                          <button
-                            key={option.label}
-                            type="button"
-                            onClick={() => setSelectedMoodRating(option.rating)}
-                            className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                              isActive
-                                ? 'bg-primary/20 border-primary text-white shadow-md shadow-primary/20'
-                                : 'bg-dark-card border-white/10 text-gray-300 hover:text-white hover:border-white/30'
-                            }`}
-                            aria-pressed={isActive}
-                          >
-                            <span className="inline-flex items-center gap-1">
-                              <span className="text-[10px]">♪</span>
-                              {option.label}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <div className="text-center text-xs text-gray-400">
-                      선택한 토글: <span className="text-white font-semibold">{selectedMoodRating ?? '-'}</span> / 100
+                    <div className="py-2">
+                      <MusicSlider value={ratingValue} onChange={setRatingValue} />
                     </div>
                     <textarea
                       value={reviewContent}
