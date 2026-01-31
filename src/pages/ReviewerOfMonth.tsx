@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const ReviewerOfMonth: React.FC = () => {
   // Mock Data for Top Reviewers - can be expanded
@@ -17,7 +18,7 @@ const ReviewerOfMonth: React.FC = () => {
       <h1 className="text-4xl font-black text-white mb-6">이달의 리뷰어</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {reviewers.map(reviewer => (
-          <div key={reviewer.id} className="bg-dark-card rounded-2xl p-6 border border-white/5 text-center">
+          <Link to={`/user/${reviewer.id}`} key={reviewer.id} className="bg-dark-card rounded-2xl p-6 border border-white/5 text-center block hover:border-primary/50 transition-colors">
             <img src={reviewer.avatar} alt={reviewer.name} className="w-24 h-24 rounded-full mx-auto mb-4 ring-2 ring-primary/50" />
             <h3 className="text-lg font-bold text-white">{reviewer.name}</h3>
             <p className="text-indigo-400 text-sm">{reviewer.level}</p>
@@ -29,7 +30,7 @@ const ReviewerOfMonth: React.FC = () => {
                 <span className="font-bold text-white">{reviewer.followers}</span> Followers
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

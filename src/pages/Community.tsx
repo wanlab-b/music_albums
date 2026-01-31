@@ -178,7 +178,7 @@ const Community: React.FC = () => {
                 
                 <div className="space-y-4">
                     {topUsers.map((user, index) => (
-                        <div key={user.id} className="flex items-center gap-4 group">
+                        <Link to={`/user/${user.id}`} key={user.id} className="flex items-center gap-4 group">
                             <div className="relative">
                                 <img src={user.avatar} alt={user.name} className="w-12 h-12 rounded-full object-cover ring-2 ring-white/5 group-hover:ring-primary/50 transition-all" />
                                 <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-dark-card rounded-full flex items-center justify-center text-[10px] font-bold text-white border border-white/10">
@@ -196,7 +196,7 @@ const Community: React.FC = () => {
                             <button className="p-2 rounded-full bg-white/5 text-gray-400 hover:bg-primary hover:text-white transition-colors">
                                 <UserPlus className="w-4 h-4" />
                             </button>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             </div>

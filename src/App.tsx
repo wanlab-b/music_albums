@@ -25,6 +25,7 @@ import RockMetalPage from './pages/genre/RockMetalPage';
 import JazzPage from './pages/genre/JazzPage';
 import IndiePage from './pages/genre/IndiePage';
 import ReviewerOfMonth from './pages/ReviewerOfMonth';
+import UserProfile from './pages/UserProfile';
 
 const Footer: React.FC = () => (
   <footer className="border-t border-white/5 bg-dark-bg mt-12 py-12">
@@ -93,6 +94,7 @@ const App: React.FC = () => {
                 <Route path="/community/jazz" element={<JazzPage />} />
                 <Route path="/community/indie" element={<IndiePage />} />
                 <Route path="/community/reviewer-of-the-month" element={<ReviewerOfMonth />} />
+                <Route path="/user/:userId" element={<UserProfile />} />
               </Routes>
             </main>
             <Footer />
