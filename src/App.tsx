@@ -15,6 +15,16 @@ import MyPage from './pages/MyPage';
 import { AuthProvider } from './contexts/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
+import BalladPage from './pages/genre/BalladPage';
+import DancePopPage from './pages/genre/DancePopPage';
+import FolkBluesPage from './pages/genre/FolkBluesPage';
+import IdolPage from './pages/genre/IdolPage';
+import RapHipHopPage from './pages/genre/RapHipHopPage';
+import RnBSoulPage from './pages/genre/RnBSoulPage';
+import RockMetalPage from './pages/genre/RockMetalPage';
+import JazzPage from './pages/genre/JazzPage';
+import IndiePage from './pages/genre/IndiePage';
+
 const Footer: React.FC = () => (
   <footer className="border-t border-white/5 bg-dark-bg mt-12 py-12">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,6 +82,15 @@ const App: React.FC = () => {
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/mypage" element={<MyPage />} />
                 <Route path="/album/:id" element={<AlbumDetail />} />
+                <Route path="/community/ballad" element={<BalladPage />} />
+                <Route path="/community/dance-pop" element={<DancePopPage />} />
+                <Route path="/community/folk-blues" element={<FolkBluesPage />} />
+                <Route path="/community/idol" element={<IdolPage />} />
+                <Route path="/community/rap-hip-hop" element={<RapHipHopPage />} />
+                <Route path="/community/rnb-soul" element={<RnBSoulPage />} />
+                <Route path="/community/rock-metal" element={<RockMetalPage />} />
+                <Route path="/community/jazz" element={<JazzPage />} />
+                <Route path="/community/indie" element={<IndiePage />} />
               </Routes>
             </main>
             <Footer />

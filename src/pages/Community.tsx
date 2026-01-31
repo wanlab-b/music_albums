@@ -1,5 +1,10 @@
 import React from 'react';
 import { Users, MessageSquare, Star, Trophy, UserPlus, Heart, TrendingUp, Music, Radio } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+const genreToSlug = (name: string) => {
+  return name.toLowerCase().replace(/, /g, '-').replace(/ /g, '-');
+};
 
 const Community: React.FC = () => {
   // Mock Data for Top Users
@@ -27,12 +32,15 @@ const Community: React.FC = () => {
   ];
 
   const genreBoards = [
-    { id: 'g1', name: 'K-Pop', threads: 1240, postsToday: 58, color: 'from-pink-500/20 to-red-500/10' },
-    { id: 'g2', name: 'Hip Hop', threads: 980, postsToday: 41, color: 'from-emerald-500/20 to-teal-500/10' },
-    { id: 'g3', name: 'Indie', threads: 760, postsToday: 33, color: 'from-indigo-500/20 to-sky-500/10' },
-    { id: 'g4', name: 'R&B', threads: 640, postsToday: 28, color: 'from-rose-500/20 to-orange-500/10' },
-    { id: 'g5', name: 'Jazz', threads: 520, postsToday: 19, color: 'from-amber-500/20 to-yellow-500/10' },
-    { id: 'g6', name: 'Rock', threads: 710, postsToday: 26, color: 'from-slate-500/20 to-zinc-500/10' },
+    { id: 'g1', name: 'Ballad', threads: 800, postsToday: 35, color: 'from-purple-500/20 to-indigo-500/10' },
+    { id: 'g2', name: 'Dance, Pop', threads: 1500, postsToday: 70, color: 'from-red-500/20 to-pink-500/10' },
+    { id: 'g3', name: 'Folk, Blues', threads: 600, postsToday: 25, color: 'from-blue-500/20 to-cyan-500/10' },
+    { id: 'g4', name: 'Idol', threads: 1800, postsToday: 90, color: 'from-yellow-500/20 to-orange-500/10' },
+    { id: 'g5', name: 'Rap, Hip Hop', threads: 1200, postsToday: 60, color: 'from-green-500/20 to-emerald-500/10' },
+    { id: 'g6', name: 'R&B, Soul', threads: 950, postsToday: 45, color: 'from-rose-500/20 to-purple-500/10' },
+    { id: 'g7', name: 'Rock, Metal', threads: 1100, postsToday: 50, color: 'from-gray-500/20 to-slate-500/10' },
+    { id: 'g8', name: 'Jazz', threads: 700, postsToday: 30, color: 'from-amber-500/20 to-yellow-500/10' },
+    { id: 'g9', name: 'Indie', threads: 1000, postsToday: 40, color: 'from-teal-500/20 to-sky-500/10' },
   ];
 
   return (
@@ -76,7 +84,8 @@ const Community: React.FC = () => {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {genreBoards.map((board) => (
-                        <button
+                        <Link
+                            to={`/community/${genreToSlug(board.name)}`}
                             key={board.id}
                             className={`text-left rounded-xl border border-white/10 p-4 bg-gradient-to-br ${board.color} hover:border-white/30 transition-all group`}
                         >
@@ -94,7 +103,7 @@ const Community: React.FC = () => {
                                 <span>•</span>
                                 <span className="text-primary">입장하기</span>
                             </div>
-                        </button>
+                        </Link>
                     ))}
                 </div>
             </div>
