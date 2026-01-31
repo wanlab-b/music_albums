@@ -23,13 +23,23 @@ const UserProfile: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'albums' | 'reviews'>('albums');
+  const [isFollowing, setIsFollowing] = useState<boolean>(false); // New state for follow button
 
   useEffect(() => {
     if (userId) {
       const userData = getUserById(userId);
       setUser(userData);
+      // Mock: check if currently following (e.g., from local storage or context)
+      // For now, let's randomly set it or keep it false
+      setIsFollowing(Math.random() > 0.5); // Example: randomly set for demonstration
     }
   }, [userId]);
+
+  const handleFollowToggle = () => {
+    setIsFollowing(!isFollowing);
+    // In a real application, you would make an API call here
+    console.log(isFollowing ? `Unfollowing ${user.name}` : `Following ${user.name}`);
+  };
 
   if (!user) {
     return (
@@ -83,8 +93,12 @@ const UserProfile: React.FC = () => {
 
             {/* Follow Button */}
             <div className="mb-4">
-               <button className="px-4 py-2 bg-primary hover:bg-indigo-500 border border-transparent rounded-lg text-white text-sm font-bold transition-colors">
-                 Follow
+               <button 
+                 onClick={handleFollowToggle}
+                 className={`px-4 py-2 rounded-lg text-white text-sm font-bold transition-colors 
+                           ${isFollowing ? 'bg-gray-600 hover:bg-gray-700' : 'bg-primary hover:bg-indigo-500'}`}
+               >
+                 {isFollowing ? 'Following' : 'Follow'}
                </button>
             </div>
           </div>
@@ -140,3 +154,4 @@ const UserProfile: React.FC = () => {
 };
 
 export default UserProfile;
+
