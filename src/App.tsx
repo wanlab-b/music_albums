@@ -1,6 +1,7 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import SeoUpdater from './components/SeoUpdater';
 import Home from './pages/Home';
 import AlbumDetail from './pages/AlbumDetail';
 import ArtistDetail from './pages/ArtistDetail';
@@ -27,6 +28,10 @@ import JazzPage from './pages/genre/JazzPage';
 import IndiePage from './pages/genre/IndiePage';
 import ReviewerOfMonth from './pages/ReviewerOfMonth';
 import UserProfile from './pages/UserProfile';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
 
 const Footer: React.FC = () => (
   <footer className="border-t border-white/5 bg-dark-bg mt-12 py-12">
@@ -42,17 +47,17 @@ const Footer: React.FC = () => (
         <div>
           <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Platform</h3>
           <ul className="space-y-2 text-sm text-gray-400">
-            <li><a href="#" className="hover:text-primary transition-colors">차트</a></li>
-            <li><a href="#" className="hover:text-primary transition-colors">신작</a></li>
-            <li><a href="#" className="hover:text-primary transition-colors">커뮤니티</a></li>
+            <li><Link to="/best-albums" className="hover:text-primary transition-colors">차트</Link></li>
+            <li><Link to="/new-releases" className="hover:text-primary transition-colors">신작</Link></li>
+            <li><Link to="/community" className="hover:text-primary transition-colors">커뮤니티</Link></li>
           </ul>
         </div>
         <div>
           <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Legal</h3>
           <ul className="space-y-2 text-sm text-gray-400">
-            <li><a href="#" className="hover:text-primary transition-colors">이용약관</a></li>
-            <li><a href="#" className="hover:text-primary transition-colors">개인정보처리방침</a></li>
-            <li><a href="#" className="hover:text-primary transition-colors">문의하기</a></li>
+            <li><Link to="/terms" className="hover:text-primary transition-colors">이용약관</Link></li>
+            <li><Link to="/privacy" className="hover:text-primary transition-colors">개인정보처리방침</Link></li>
+            <li><Link to="/contact" className="hover:text-primary transition-colors">문의하기</Link></li>
           </ul>
         </div>
       </div>
@@ -71,6 +76,7 @@ const App: React.FC = () => {
       <AuthProvider>
         <Router>
           <div className="min-h-screen bg-dark-bg text-white font-sans flex flex-col">
+            <SeoUpdater />
             <Navbar />
             <main className="flex-grow">
               <Routes>
@@ -97,6 +103,10 @@ const App: React.FC = () => {
                 <Route path="/community/indie" element={<IndiePage />} />
                 <Route path="/community/reviewer-of-the-month" element={<ReviewerOfMonth />} />
                 <Route path="/user/:userId" element={<UserProfile />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<Terms />} />
               </Routes>
             </main>
             <Footer />

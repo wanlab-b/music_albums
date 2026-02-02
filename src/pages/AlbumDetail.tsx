@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getAlbumById } from '@/services/albumService';
 import { getAlbumTracks } from '@/services/trackService';
+import { createReview, getReviewsByAlbumId } from '@/services/reviewService';
 import { Album, AlbumTrack, Review } from '@/types';
-import { MOCK_REVIEWS } from '@/constants'; // 리뷰는 아직 Mock 유지
 import ReviewItem from '@/components/ReviewItem';
 import MusicSlider from '@/components/MusicSlider';
 import { Play, Heart, Share2, PenTool, Loader2 } from 'lucide-react';
@@ -17,7 +17,8 @@ const AlbumDetail: React.FC = () => {
   const [albumTracks, setAlbumTracks] = useState<AlbumTrack[]>([]);
   const [tracksLoading, setTracksLoading] = useState(true);
   const { user } = useAuth();
-  const [reviews, setReviews] = useState<Review[]>(() => [...MOCK_REVIEWS]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
   const [ratingValue, setRatingValue] = useState<number>(50);
   const [reviewContent, setReviewContent] = useState('');
   const [formError, setFormError] = useState('');
@@ -36,7 +37,7 @@ const AlbumDetail: React.FC = () => {
       .map((entry) => entry.review);
   }, [reviews]);
 
-  const handleSubmitReview = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmitReview = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError('');
     if (!user) {
@@ -52,19 +53,27 @@ const AlbumDetail: React.FC = () => {
       setFormError('점수를 선택해주세요.');
       return;
     }
+    if (!album) {
+      setFormError('앨범 정보를 찾을 수 없습니다.');
+      return;
+    }
 
     const rating = ratingValue;
-    const date = new Date().toISOString().slice(0, 10);
-    const newReview: Review = {
-      id: `r-${Date.now()}`,
+    const created = await createReview({
+      albumId: album.id,
+      userId: user.id,
       username: user.name,
       rating,
       content: trimmedContent,
-      date,
       avatarUrl: user.avatarUrl
-    };
+    });
 
-    setReviews((prev) => [newReview, ...prev]);
+    if (!created) {
+      setFormError('리뷰 저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
+    setReviews((prev) => [created, ...prev]);
     setReviewContent('');
     setRatingValue(50);
   };
@@ -77,12 +86,18 @@ const AlbumDetail: React.FC = () => {
         const data = await getAlbumById(id);
         setAlbum(data);
         if (data) {
-          const tracks = await getAlbumTracks(data.id);
+          const [tracks, albumReviews] = await Promise.all([
+            getAlbumTracks(data.id),
+            getReviewsByAlbumId(data.id)
+          ]);
           setAlbumTracks(tracks);
+          setReviews(albumReviews);
         } else {
           setAlbumTracks([]);
+          setReviews([]);
         }
         setTracksLoading(false);
+        setReviewsLoading(false);
         setLoading(false);
       }
     };
@@ -290,9 +305,15 @@ const AlbumDetail: React.FC = () => {
           </div>
           
           <div className="space-y-4">
-            {sortedReviews.map((review) => (
-              <ReviewItem key={review.id} review={review} />
-            ))}
+            {reviewsLoading ? (
+              <div className="text-center py-8 text-gray-500 text-sm">리뷰를 불러오는 중...</div>
+            ) : sortedReviews.length > 0 ? (
+              sortedReviews.map((review) => (
+                <ReviewItem key={review.id} review={review} />
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500 text-sm">아직 등록된 리뷰가 없습니다.</div>
+            )}
           </div>
           
           <button className="w-full mt-8 py-3 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:border-white/20 hover:bg-white/5 transition-all text-sm font-medium">
