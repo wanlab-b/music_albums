@@ -1,33 +1,7 @@
 import { supabase } from "../supabaseClient";
 import { Album } from "../types";
 import { TEST_DUMMY_ALBUM } from "../constants";
-
-const normalizeAlbum = (row: Record<string, unknown>): Album => {
-  const releaseDate =
-    (row.releaseDate as string | undefined) ?? (row.release_date as string | undefined) ?? "";
-  const coverUrl =
-    (row.coverUrl as string | undefined) ?? (row.cover_url as string | undefined) ?? "";
-  const criticScore =
-    (row.criticScore as number | undefined) ?? (row.critic_score as number | undefined) ?? 0;
-  const userScore =
-    (row.userScore as number | undefined) ?? (row.user_score as number | undefined) ?? 0;
-  const genres = (row.genres as string[] | undefined) ?? [];
-  const tracks = (row.tracks as string[] | undefined) ?? undefined;
-
-  return {
-    id: row.id as string,
-    title: row.title as string,
-    artist: row.artist as string,
-    type: row.type as string | undefined,
-    releaseDate,
-    coverUrl,
-    genres,
-    criticScore,
-    userScore,
-    description: row.description as string | undefined,
-    tracks
-  };
-};
+import { normalizeAlbum } from "./albumMapping";
 
 export const getAllAlbums = async (): Promise<Album[]> => {
   if (!supabase) {
@@ -36,7 +10,7 @@ export const getAllAlbums = async (): Promise<Album[]> => {
   }
   
   try {
-    const { data, error } = await supabase.from("albums").select("*");
+    const { data, error } = await supabase.from("bugs_albums_view").select("*");
     if (error) throw error;
     const rows = Array.isArray(data) ? data : [];
     const albums = rows.map((row) => normalizeAlbum(row as Record<string, unknown>));
@@ -56,12 +30,24 @@ export const getAlbumById = async (id: string): Promise<Album | null> => {
 
   try {
     const { data, error } = await supabase
-      .from("albums")
+      .from("bugs_albums_view")
       .select("*")
       .eq("id", id)
       .maybeSingle();
     if (error) throw error;
-    return data ? normalizeAlbum(data as Record<string, unknown>) : null;
+    if (!data) return null;
+    const album = normalizeAlbum(data as Record<string, unknown>);
+
+    const { data: baseRow, error: baseError } = await supabase
+      .from("bugs_albums")
+      .select("artist_id")
+      .eq("id", id)
+      .maybeSingle();
+    if (!baseError && baseRow?.artist_id) {
+      album.artistId = baseRow.artist_id as string;
+    }
+
+    return album;
   } catch (error) {
     console.error("Error fetching album:", error);
     return null;

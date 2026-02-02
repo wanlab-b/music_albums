@@ -1,6 +1,7 @@
 import React from 'react';
 import { MOCK_ALBUMS } from '../constants';
 import AlbumCard from '../components/AlbumCard';
+import { getAlbumCoverUrl } from '../utils/media';
 import { Calendar, Filter } from 'lucide-react';
 
 const NewReleases: React.FC = () => {
@@ -97,7 +98,7 @@ const NewReleases: React.FC = () => {
                         {upcoming.map((album, i) => (
                             <div key={`upcoming-${i}`} className="flex gap-3 group cursor-pointer hover:bg-white/5 p-2 rounded-lg -mx-2 transition-colors">
                                 <div className="w-12 h-12 bg-gray-800 rounded-md overflow-hidden flex-shrink-0 relative">
-                                    <img src={album.coverUrl} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
+                                    <img src={getAlbumCoverUrl(album.coverUrl, album.id, 200)} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
                                     <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white bg-black/30 backdrop-blur-[1px]">
                                         Mar 0{i + 1}
                                     </div>

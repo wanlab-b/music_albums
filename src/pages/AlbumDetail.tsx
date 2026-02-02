@@ -1,17 +1,21 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getAlbumById } from '@/services/albumService';
-import { Album, Review } from '@/types';
+import { getAlbumTracks } from '@/services/trackService';
+import { Album, AlbumTrack, Review } from '@/types';
 import { MOCK_REVIEWS } from '@/constants'; // 리뷰는 아직 Mock 유지
 import ReviewItem from '@/components/ReviewItem';
 import MusicSlider from '@/components/MusicSlider';
 import { Play, Heart, Share2, PenTool, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { getAlbumCoverUrl } from '@/utils/media';
 
 const AlbumDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [album, setAlbum] = useState<Album | null>(null);
   const [loading, setLoading] = useState(true);
+  const [albumTracks, setAlbumTracks] = useState<AlbumTrack[]>([]);
+  const [tracksLoading, setTracksLoading] = useState(true);
   const { user } = useAuth();
   const [reviews, setReviews] = useState<Review[]>(() => [...MOCK_REVIEWS]);
   const [ratingValue, setRatingValue] = useState<number>(50);
@@ -69,8 +73,16 @@ const AlbumDetail: React.FC = () => {
     const fetchData = async () => {
       if (id) {
         setLoading(true);
+        setTracksLoading(true);
         const data = await getAlbumById(id);
         setAlbum(data);
+        if (data) {
+          const tracks = await getAlbumTracks(data.id);
+          setAlbumTracks(tracks);
+        } else {
+          setAlbumTracks([]);
+        }
+        setTracksLoading(false);
         setLoading(false);
       }
     };
@@ -109,7 +121,7 @@ const AlbumDetail: React.FC = () => {
         <div className="flex-shrink-0 w-full md:w-[250px] lg:w-[300px]">
           <div className="relative aspect-square rounded-xl overflow-hidden shadow-2xl border border-white/10">
             <img 
-              src={album.coverUrl} 
+              src={getAlbumCoverUrl(album.coverUrl, album.id, 600)} 
               alt={album.title} 
               className="w-full h-full object-cover"
             />
@@ -140,7 +152,16 @@ const AlbumDetail: React.FC = () => {
                ))}
              </div>
              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-1 leading-tight">{album.title}</h1>
-             <p className="text-lg md:text-xl text-gray-300 font-medium hover:text-white transition-colors cursor-pointer">{album.artist}</p>
+             {album.artistId ? (
+               <Link
+                 to={`/artist/${album.artistId}`}
+                 className="text-lg md:text-xl text-gray-300 font-medium hover:text-white transition-colors"
+               >
+                 {album.artist}
+               </Link>
+             ) : (
+               <p className="text-lg md:text-xl text-gray-300 font-medium">{album.artist}</p>
+             )}
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 my-4">
@@ -184,7 +205,20 @@ const AlbumDetail: React.FC = () => {
                     트랙리스트
                 </h3>
                 <div className="bg-dark-card rounded-xl border border-white/5 overflow-hidden">
-                    {album.tracks && album.tracks.length > 0 ? (
+                    {tracksLoading ? (
+                        <div className="p-6 text-center text-gray-500 text-sm">트랙 정보를 불러오는 중...</div>
+                    ) : albumTracks.length > 0 ? (
+                        <ul className="divide-y divide-white/5">
+                            {albumTracks.map((track) => (
+                                <li key={track.id} className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors cursor-pointer group">
+                                    <div className="flex items-center gap-4">
+                                        <span className="text-gray-500 w-4 text-center text-sm">{track.trackNo ?? "-"}</span>
+                                        <span className="text-gray-200 font-medium group-hover:text-primary transition-colors text-sm line-clamp-1">{track.title}</span>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : album.tracks && album.tracks.length > 0 ? (
                         <ul className="divide-y divide-white/5">
                             {album.tracks.map((track, idx) => (
                                 <li key={idx} className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors cursor-pointer group">

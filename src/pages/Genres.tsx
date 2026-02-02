@@ -3,6 +3,7 @@ import { MOCK_ALBUMS } from '@/constants';
 import { Link } from 'react-router-dom';
 import { Star, Search } from 'lucide-react';
 import { Album } from '@/types';
+import { getAlbumCoverUrl } from '@/utils/media';
 
 // Helper for the AOTY style score bar - Compacted
 const ScoreBar = ({ score, count }: { score: number; count: number }) => {
@@ -65,7 +66,7 @@ const GenreSection = ({
           <div key={`${title}-${album.id}-${idx}`} className="group flex flex-col">
             <Link to={`/album/${album.id}`} className="relative aspect-square mb-2 overflow-hidden shadow-lg bg-gray-900">
                 <img 
-                  src={album.coverUrl} 
+                  src={getAlbumCoverUrl(album.coverUrl, album.id, 600)} 
                   alt={album.title} 
                   className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-80"
                   loading="lazy"

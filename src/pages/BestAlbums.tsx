@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Filter, ChevronDown, Check, Disc, Music2, Loader2 } from 'lucide-react';
 import { getAllAlbums } from '@/services/albumService';
 import { Album } from '@/types';
+import { getAlbumCoverUrl } from '@/utils/media';
 
 const BestAlbums: React.FC = () => {
   const [albums, setAlbums] = useState<Album[]>([]);
@@ -242,7 +243,7 @@ const BestAlbums: React.FC = () => {
                 
                 <Link to={`/album/${item.id}`} className="relative block w-full sm:w-32 aspect-square rounded-lg overflow-hidden flex-shrink-0">
                   <img 
-                    src={item.coverUrl} 
+                    src={getAlbumCoverUrl(item.coverUrl, item.id, 600)} 
                     alt={item.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"

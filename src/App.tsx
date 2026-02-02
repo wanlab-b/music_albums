@@ -3,6 +3,7 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import AlbumDetail from './pages/AlbumDetail';
+import ArtistDetail from './pages/ArtistDetail';
 import BestAlbums from './pages/BestAlbums';
 import Discover from './pages/Discover';
 import NewReleases from './pages/NewReleases';
@@ -84,6 +85,7 @@ const App: React.FC = () => {
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/mypage" element={<MyPage />} />
                 <Route path="/album/:id" element={<AlbumDetail />} />
+                <Route path="/artist/:id" element={<ArtistDetail />} />
                 <Route path="/community/ballad" element={<BalladPage />} />
                 <Route path="/community/dance-pop" element={<DancePopPage />} />
                 <Route path="/community/folk-blues" element={<FolkBluesPage />} />

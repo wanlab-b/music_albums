@@ -3,6 +3,7 @@ export interface Album {
   id: string;
   title: string;
   artist: string;
+  artistId?: string;
   type?: string; // e.g., '싱글', 'EP(미니)', '정규'
   releaseDate: string;
   coverUrl: string;
@@ -20,6 +21,26 @@ export interface Review {
   content: string;
   date: string;
   avatarUrl?: string;
+}
+
+export interface Artist {
+  id: string;
+  name: string;
+}
+
+export interface AlbumTrack {
+  id: string;
+  albumId: string;
+  trackNo: number | null;
+  title: string;
+}
+
+export interface Track {
+  id: string;
+  title: string;
+  duration?: string | null;
+  albumId?: string | null;
+  artistId?: string | null;
 }
 
 export interface User {
