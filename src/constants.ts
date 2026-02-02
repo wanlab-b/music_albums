@@ -7,22 +7,7 @@ export const ADMIN_USER: User = {
   avatarUrl: 'https://picsum.photos/100/100?random=0'
 };
 
-// TEST_DUMMY_ALBUM: delete this export when removing test data.
-export const TEST_DUMMY_ALBUM: Album = {
-  id: 'TEST_DUMMY_001',
-  title: '[TEST] Dummy Album',
-  artist: 'Test Artist',
-  releaseDate: '2026-01-29',
-  coverUrl: 'https://picsum.photos/400/400?random=999',
-  genres: ['Test'],
-  criticScore: 99,
-  userScore: 99,
-  description: '[TEST] Dummy album for UI testing.',
-  tracks: ['[TEST] Track 01', '[TEST] Track 02']
-};
-
 export const MOCK_ALBUMS: Album[] = [
-  TEST_DUMMY_ALBUM,
   {
     id: '1',
     title: 'Get Up',
@@ -110,29 +95,4 @@ export const MOCK_ALBUMS: Album[] = [
   }
 ];
 
-export const MOCK_REVIEWS: Review[] = [
-  {
-    id: 'r1',
-    username: 'MusicLover99',
-    rating: 90,
-    content: '올해 최고의 앨범 중 하나입니다. 프로덕션이 미쳤어요.',
-    date: '2023-11-15',
-    avatarUrl: 'https://picsum.photos/100/100?random=10'
-  },
-  {
-    id: 'r2',
-    username: 'CriticWannabe',
-    rating: 75,
-    content: '좋긴 하지만 전작에 비해서는 약간 아쉽네요. 그래도 추천합니다.',
-    date: '2023-11-14',
-    avatarUrl: 'https://picsum.photos/100/100?random=11'
-  },
-  {
-    id: 'r3',
-    username: 'KpopStan_kr',
-    rating: 100,
-    content: '완벽 그 자체. 수록곡 하나하나가 다 타이틀감입니다.',
-    date: '2023-11-10',
-    avatarUrl: 'https://picsum.photos/100/100?random=12'
-  }
-];
+export const MOCK_REVIEWS: Review[] = [];

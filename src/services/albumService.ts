@@ -1,12 +1,11 @@
 import { supabase } from "../supabaseClient";
 import { Album } from "../types";
-import { TEST_DUMMY_ALBUM } from "../constants";
 import { normalizeAlbum } from "./albumMapping";
 
 export const getAllAlbums = async (): Promise<Album[]> => {
   if (!supabase) {
     console.warn("Supabase not initialized");
-    return import.meta.env.DEV ? [TEST_DUMMY_ALBUM] : [];
+    return [];
   }
   
   try {
@@ -14,18 +13,14 @@ export const getAllAlbums = async (): Promise<Album[]> => {
     if (error) throw error;
     const rows = Array.isArray(data) ? data : [];
     const albums = rows.map((row) => normalizeAlbum(row as Record<string, unknown>));
-    if (import.meta.env.DEV && !albums.some((album) => album.id === TEST_DUMMY_ALBUM.id)) {
-      albums.push(TEST_DUMMY_ALBUM);
-    }
     return albums;
   } catch (error) {
     console.error("Error fetching albums:", error);
-    return import.meta.env.DEV ? [TEST_DUMMY_ALBUM] : [];
+    return [];
   }
 };
 
 export const getAlbumById = async (id: string): Promise<Album | null> => {
-  if (import.meta.env.DEV && id === TEST_DUMMY_ALBUM.id) return TEST_DUMMY_ALBUM;
   if (!supabase) return null;
 
   try {
