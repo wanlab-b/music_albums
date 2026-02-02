@@ -36,9 +36,15 @@ const UserProfile: React.FC = () => {
   }, [userId]);
 
   const handleFollowToggle = () => {
-    setIsFollowing(!isFollowing);
+    const nextIsFollowing = !isFollowing;
+    setIsFollowing(nextIsFollowing);
+    setUser(current => {
+      if (!current) return current;
+      const delta = nextIsFollowing ? 1 : -1;
+      return { ...current, followers: current.followers + delta };
+    });
     // In a real application, you would make an API call here
-    console.log(isFollowing ? `Unfollowing ${user.name}` : `Following ${user.name}`);
+    console.log(nextIsFollowing ? `Following ${user.name}` : `Unfollowing ${user.name}`);
   };
 
   if (!user) {
@@ -154,4 +160,3 @@ const UserProfile: React.FC = () => {
 };
 
 export default UserProfile;
-
