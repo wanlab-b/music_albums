@@ -37,20 +37,49 @@ const normalizeGenres = (genres: string[]): string[] => {
   return parts;
 };
 
+const ALLOWED_GENRES = [
+  { key: 'ballad', label: '발라드' },
+  { key: 'dance', label: '댄스/팝' },
+  { key: 'folk', label: '포크/블루스' },
+  { key: 'idol', label: '아이돌' },
+  { key: 'rnh', label: '랩/힙합' },
+  { key: 'rns', label: '알앤비/소울' },
+  { key: 'rock', label: '록/메탈' },
+  { key: 'jazz', label: '재즈' },
+  { key: 'indie', label: '인디' },
+] as const;
+
+const buildMatchTerms = (key: string, label: string) => {
+  const terms = new Set<string>();
+  [key, label].forEach((term) => {
+    term
+      .split(/[,/]/)
+      .map((piece) => piece.trim().toLowerCase())
+      .filter(Boolean)
+      .forEach((piece) => terms.add(piece));
+  });
+  return [...terms];
+};
+
 const GenreSection = ({
   title,
   genre,
+  matchTerms,
   searchQuery,
   albums,
 }: {
   title: string;
   genre: string;
+  matchTerms: string[];
   searchQuery: string;
   albums: Album[];
 }) => {
   // Filter albums by genre and search query
   const allAlbums = albums
-    .filter((album) => normalizeGenres(album.genres || []).includes(genre))
+    .filter((album) => {
+      const normalized = normalizeGenres(album.genres || []).map((g) => g.toLowerCase());
+      return normalized.some((g) => matchTerms.includes(g));
+    })
     .filter(
       (album) =>
         album.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -125,12 +154,8 @@ const Genres: React.FC = () => {
   }, []);
 
   const allGenres = useMemo(() => {
-    const genreSet = new Set<string>();
-    albums.forEach((album) => {
-      normalizeGenres(album.genres || []).forEach((g) => genreSet.add(g));
-    });
-    return [...genreSet].sort();
-  }, [albums]);
+    return ALLOWED_GENRES.map((g) => g.label);
+  }, []);
 
   const filteredAlbumCount = albums.filter(
     (album) =>
@@ -166,11 +191,12 @@ const Genres: React.FC = () => {
                 </div>
 
                 {filteredAlbumCount > 0 ? (
-                  allGenres.map((genre) => (
+                  ALLOWED_GENRES.map((genre) => (
                     <GenreSection
-                      key={genre}
-                      title={genre}
-                      genre={genre}
+                      key={genre.key}
+                      title={genre.label}
+                      genre={genre.label}
+                      matchTerms={buildMatchTerms(genre.key, genre.label)}
                       searchQuery={searchQuery}
                       albums={albums}
                     />
