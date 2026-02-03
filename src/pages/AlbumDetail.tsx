@@ -9,6 +9,7 @@ import MusicSlider from '@/components/MusicSlider';
 import { Play, Heart, Share2, PenTool, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAlbumCoverUrl } from '@/utils/media';
+import { applyBaseSeo } from '@/seo';
 
 const AlbumDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -104,6 +105,24 @@ const AlbumDetail: React.FC = () => {
     fetchData();
     window.scrollTo(0, 0);
   }, [id]);
+
+  useEffect(() => {
+    if (!album) return;
+    const title = `${album.title} - ${album.artist} | MuzikPick`;
+    const description =
+      album.description && album.description.trim().length > 0
+        ? album.description
+        : `${album.artist}의 "${album.title}" 앨범 정보와 트랙리스트, 리뷰를 확인하세요.`;
+    const image = getAlbumCoverUrl(album.coverUrl, album.id, 1200);
+
+    applyBaseSeo({
+      title,
+      description,
+      image,
+      imageAlt: `${album.artist} - ${album.title} 앨범 커버`,
+      type: "music.album"
+    });
+  }, [album]);
 
   if (loading) {
     return (

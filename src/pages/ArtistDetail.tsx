@@ -5,6 +5,7 @@ import { getArtistById, getAlbumsByArtistId } from "@/services/artistService";
 import { getTracksByArtistId } from "@/services/trackService";
 import { Album, Artist, Track } from "@/types";
 import { Loader2, Music2 } from "lucide-react";
+import { applyBaseSeo } from "@/seo";
 
 const ArtistDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +31,19 @@ const ArtistDetail: React.FC = () => {
     fetchData();
     window.scrollTo(0, 0);
   }, [id]);
+
+  useEffect(() => {
+    if (!artist) return;
+    const albumCount = albums.length;
+    const trackCount = tracks.length;
+    const description = `${artist.name}의 앨범 ${albumCount}개, 트랙 ${trackCount}개를 확인하고 관련 리뷰를 살펴보세요.`;
+
+    applyBaseSeo({
+      title: `${artist.name} | MuzikPick`,
+      description,
+      type: "profile"
+    });
+  }, [artist, albums.length, tracks.length]);
 
   if (loading) {
     return (
