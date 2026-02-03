@@ -1,14 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Users, MessageSquare, Star, Trophy, UserPlus, Heart, TrendingUp, Music, Radio } from 'lucide-react';
+import { Users, MessageSquare, Star, Trophy, UserPlus, Heart, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getRecentReviews } from '@/services/reviewService';
 import { getAllAlbums } from '@/services/albumService';
 import { Album, Review } from '@/types';
 import { Loader2 } from 'lucide-react';
-
-const genreToSlug = (name: string) => {
-  return name.toLowerCase().replace(/, /g, '-').replace(/ /g, '-');
-};
 
 const Community: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -95,51 +91,6 @@ const Community: React.FC = () => {
       });
   }, [reviews, albumMap]);
 
-  const genreBoards = [
-    {
-      id: 'g1',
-      name: 'Hip Hop / Rap',
-      match: ['랩', '힙합', 'hip hop', 'hiphop', 'rap', 'rnh'],
-      color: 'from-green-500/20 to-emerald-500/10',
-    },
-  ];
-
-  const normalizeGenres = (genres: string[]): string[] => {
-    const parts: string[] = [];
-    genres.forEach((g) => {
-      g.split(/[,/]/).forEach((piece) => {
-        const trimmed = piece.trim();
-        if (trimmed) parts.push(trimmed);
-      });
-    });
-    return parts;
-  };
-
-  const genreStats = useMemo(() => {
-    const albumGenres = new Map<string, string[]>();
-    albums.forEach((album) => {
-      albumGenres.set(album.id, normalizeGenres(album.genres || []));
-    });
-
-    return genreBoards.map((board) => {
-      const albumIds = albums
-        .filter((album) => {
-          const normalized = normalizeGenres(album.genres || []);
-          return board.match.some((token) =>
-            normalized.some((g) => g.toLowerCase().includes(token.toLowerCase()))
-          );
-        })
-        .map((album) => album.id);
-
-      const reviewCount = reviews.filter((review) => review.albumId && albumIds.includes(review.albumId)).length;
-      return {
-        ...board,
-        threads: albumIds.length,
-        postsToday: reviewCount
-      };
-    });
-  }, [albums, reviews]);
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Header */}
@@ -174,42 +125,8 @@ const Community: React.FC = () => {
       ) : (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         
-        {/* Main Content: Genre Boards + Activity Feed */}
+        {/* Main Content: Activity Feed */}
         <div className="lg:col-span-2 space-y-10">
-            <div className="bg-dark-card/60 border border-white/5 rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <Radio className="w-5 h-5 text-primary" />
-                        장르별 게시판
-                    </h2>
-                    <Link to="/genres" className="text-sm text-gray-400 hover:text-white transition-colors">전체보기</Link>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {genreStats.map((board) => (
-                        <Link
-                            to={`/community/${genreToSlug(board.name)}`}
-                            key={board.id}
-                            className={`text-left rounded-xl border border-white/10 p-4 bg-gradient-to-br ${board.color} hover:border-white/30 transition-all group`}
-                        >
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center gap-2">
-                                    <Music className="w-4 h-4 text-white/80" />
-                                    <span className="text-sm font-bold text-white">{board.name}</span>
-                                </div>
-                                <span className="text-[10px] text-gray-300 bg-white/10 px-2 py-0.5 rounded-full">
-                                    오늘 {board.postsToday}건
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-2 text-xs text-gray-300">
-                                <span>스레드 {board.threads.toLocaleString()}</span>
-                                <span>•</span>
-                                <span className="text-primary">입장하기</span>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
-            </div>
-
             <div className="flex items-center justify-between">
                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <TrendingUp className="w-5 h-5 text-emerald-400" />

@@ -79,8 +79,8 @@ const GenreSection = ({
     })
     .filter(
       (album) =>
-        album.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        album.artist.toLowerCase().includes(searchQuery.toLowerCase())
+        (album.title ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (album.artist ?? '').toLowerCase().includes(searchQuery.toLowerCase())
     )
     .sort((a, b) => b.criticScore - a.criticScore);
 
@@ -156,8 +156,8 @@ const Genres: React.FC = () => {
 
   const filteredAlbumCount = albums.filter(
     (album) =>
-      album.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      album.artist.toLowerCase().includes(searchQuery.toLowerCase())
+      (album.title ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (album.artist ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   ).length;
 
   if (loading) {

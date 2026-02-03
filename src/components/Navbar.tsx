@@ -48,7 +48,6 @@ const Navbar: React.FC = () => {
     { label: '베스트 앨범', path: '/best-albums' },
     { label: '탐색', path: '/discover' },
     { label: '신작', path: '/new-releases' },
-    { label: '장르', path: '/genres' },
     { label: '커뮤니티', path: '/community' },
   ];
 
