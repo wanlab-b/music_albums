@@ -32,6 +32,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
+import NotFound from './pages/NotFound';
 
 const Footer: React.FC = () => (
   <footer className="border-t border-white/5 bg-dark-bg mt-12 py-12">
@@ -50,6 +51,7 @@ const Footer: React.FC = () => (
             <li><Link to="/best-albums" className="hover:text-primary transition-colors">차트</Link></li>
             <li><Link to="/new-releases" className="hover:text-primary transition-colors">신작</Link></li>
             <li><Link to="/community" className="hover:text-primary transition-colors">커뮤니티</Link></li>
+            <li><Link to="/about" className="hover:text-primary transition-colors">소개</Link></li>
           </ul>
         </div>
         <div>
@@ -107,6 +109,7 @@ const App: React.FC = () => {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/terms" element={<Terms />} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
             <Footer />

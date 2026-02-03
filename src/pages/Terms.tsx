@@ -13,8 +13,16 @@ const Terms: React.FC = () => {
           <p>서비스는 현재 제공되는 형태로 제공되며, 기능은 개선될 수 있습니다.</p>
         </div>
         <div>
+          <h2 className="text-base font-bold text-white mb-1">계정 및 보안</h2>
+          <p>계정 정보 보호 책임은 이용자에게 있으며, 의심되는 활동은 즉시 알려주시기 바랍니다.</p>
+        </div>
+        <div>
           <h2 className="text-base font-bold text-white mb-1">콘텐츠 책임</h2>
           <p>사용자가 작성한 리뷰에 대한 책임은 작성자에게 있습니다.</p>
+        </div>
+        <div>
+          <h2 className="text-base font-bold text-white mb-1">콘텐츠 이용 허락</h2>
+          <p>이용자가 게시한 콘텐츠는 서비스 운영 목적 범위 내에서 노출/편집될 수 있습니다.</p>
         </div>
         <div>
           <h2 className="text-base font-bold text-white mb-1">정책 변경</h2>
@@ -28,7 +36,16 @@ const Terms: React.FC = () => {
           <h2 className="text-base font-bold text-white mb-1">저작권</h2>
           <p>사이트 내 데이터/콘텐츠의 무단 복제 및 재배포는 금지됩니다.</p>
         </div>
+        <div>
+          <h2 className="text-base font-bold text-white mb-1">금지 행위</h2>
+          <p>불법 콘텐츠 게시, 자동화된 활동, 무효 트래픽 유도, 타인의 권리 침해 행위는 금지됩니다.</p>
+        </div>
+        <div>
+          <h2 className="text-base font-bold text-white mb-1">서비스 중단</h2>
+          <p>시스템 점검, 법령 준수, 보안 이슈 등의 사유로 서비스가 일시 중단될 수 있습니다.</p>
+        </div>
       </div>
+      <p className="text-gray-500 text-xs mt-4">최종 업데이트: 2026-02-03</p>
     </div>
   );
 };

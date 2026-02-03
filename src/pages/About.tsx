@@ -13,6 +13,11 @@ const About: React.FC = () => {
         ‘취향 기록 공간’으로 성장하고자 합니다. 사용자는 앨범에 점수를 남기고,
         자신의 음악 여정을 아카이빙할 수 있습니다.
       </p>
+      <p className="text-gray-400 leading-relaxed mb-6">
+        MuzikPick은 자동 생성/복붙 콘텐츠를 허용하지 않으며, 실제 경험과 맥락을 담은 리뷰를
+        우선적으로 노출합니다. 방문자가 충분히 읽고 이해할 수 있는 길이와 깊이를 가진 콘텐츠가
+        우리 플랫폼의 핵심 기준입니다.
+      </p>
       <div className="bg-dark-card border border-white/10 rounded-2xl p-6">
         <h2 className="text-xl font-bold text-white mb-2">우리가 하는 일</h2>
         <ul className="text-gray-400 space-y-2 text-sm leading-relaxed">
@@ -27,6 +32,22 @@ const About: React.FC = () => {
           모든 리뷰는 실제 이용자의 경험을 바탕으로 작성되며, 스팸/복붙/저품질 콘텐츠는 제한합니다.
           신뢰할 수 있는 정보 제공을 위해 지속적으로 콘텐츠 품질을 관리합니다.
         </p>
+      </div>
+      <div className="mt-6 bg-dark-card border border-white/10 rounded-2xl p-6">
+        <h2 className="text-xl font-bold text-white mb-2">에디토리얼 정책</h2>
+        <ul className="text-gray-400 space-y-2 text-sm leading-relaxed">
+          <li>리뷰는 충분한 길이와 구체적인 근거를 포함해야 합니다.</li>
+          <li>불법/유해/저작권 침해 콘텐츠는 즉시 제거될 수 있습니다.</li>
+          <li>중복 게시, 자동화된 댓글/리뷰, 무효 트래픽 유도는 금지됩니다.</li>
+        </ul>
+      </div>
+      <div className="mt-6 bg-dark-card border border-white/10 rounded-2xl p-6">
+        <h2 className="text-xl font-bold text-white mb-2">운영 정보</h2>
+        <p className="text-gray-400 text-sm leading-relaxed">
+          MuzikPick은 꾸준한 업데이트를 통해 사이트를 실제 운영 중인 상태로 유지합니다.
+          서비스와 정책 변경 사항은 공지 또는 관련 페이지를 통해 안내됩니다.
+        </p>
+        <p className="text-gray-500 text-xs mt-3">최종 업데이트: 2026-02-03</p>
       </div>
     </div>
   );
