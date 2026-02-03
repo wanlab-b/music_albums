@@ -21,14 +21,14 @@ const SeoUpdater = () => {
     const routeConfig = (() => {
       if (path === "/") {
         return {
-          title: "MuzikPick - 음악을 기록하다",
-          description: "앨범을 평가하고 리뷰를 나누며 새로운 음악을 발견하세요."
+          title: "MuzikPick - 앨범 순위와 앨범 평가를 한눈에",
+          description: "앨범 순위, 앨범 평가, 앨범 차트를 중심으로 리뷰와 신작 정보를 제공합니다."
         };
       }
       if (path === "/best-albums") {
         return {
-          title: "베스트 앨범 차트 | MuzikPick",
-          description: "평점과 리뷰 기반으로 선정된 베스트 앨범 차트를 확인하세요."
+          title: "앨범 차트 · 앨범 순위 | MuzikPick",
+          description: "앨범 순위와 앨범 차트를 평점과 리뷰로 확인하고 비교해보세요."
         };
       }
       if (path === "/discover") {
