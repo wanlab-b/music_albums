@@ -41,11 +41,7 @@ const BestAlbums: React.FC = () => {
     return ['All', ...uniqueYears.sort().reverse()] as string[];
   }, [albums]);
 
-  // Extract unique genres
-  const genres = useMemo(() => {
-    const uniqueGenres = Array.from(new Set(albums.flatMap((a) => a.genres || [])));
-    return ['All', ...uniqueGenres.sort()] as string[];
-  }, [albums]);
+  const genres = useMemo(() => ['All', '힙합/랩'] as string[], []);
 
   const sortOptions = ['Highest Rated', 'Lowest Rated', 'Newest', 'Oldest'];
 
@@ -79,7 +75,14 @@ const BestAlbums: React.FC = () => {
 
     // Filter by Genre
     if (selectedGenre !== 'All') {
-      result = result.filter(item => item.genres && item.genres.includes(selectedGenre));
+      const target = ['힙합', '랩', 'hip hop', 'hiphop', 'rap', 'rnh'];
+      result = result.filter((item) => {
+        const normalized = (item.genres || [])
+          .flatMap((g) => g.split(/[,/]/))
+          .map((g) => g.trim().toLowerCase())
+          .filter(Boolean);
+        return normalized.some((g) => target.includes(g));
+      });
     }
 
     // Sort

@@ -12,6 +12,15 @@ const Search: React.FC = () => {
 
   const query = (searchParams.get('q') || '').trim();
   const normalizedQuery = query.toLowerCase();
+  const rapTerms = ['힙합', '랩', 'hip hop', 'hiphop', 'rap', 'rnh'];
+
+  const isRapAlbum = (album: Album) => {
+    const normalized = (album.genres || [])
+      .flatMap((g) => g.split(/[,/]/))
+      .map((g) => g.trim().toLowerCase())
+      .filter(Boolean);
+    return normalized.some((g) => rapTerms.includes(g));
+  };
 
   useEffect(() => {
     const fetchAlbums = async () => {
@@ -26,6 +35,7 @@ const Search: React.FC = () => {
   const results = useMemo(() => {
     if (!normalizedQuery) return [];
     return albums
+      .filter(isRapAlbum)
       .filter((album) => {
         const matchesTitle = album.title?.toLowerCase().includes(normalizedQuery);
         const matchesArtist = album.artist?.toLowerCase().includes(normalizedQuery);

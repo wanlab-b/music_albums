@@ -38,18 +38,14 @@ const normalizeGenres = (genres: string[]): string[] => {
 };
 
 const ALLOWED_GENRES = [
-  { key: 'ballad', label: '발라드' },
-  { key: 'dance', label: '댄스/팝' },
-  { key: 'folk', label: '포크/블루스' },
-  { key: 'idol', label: '아이돌' },
-  { key: 'rnh', label: '랩/힙합' },
-  { key: 'rns', label: '알앤비/소울' },
-  { key: 'rock', label: '록/메탈' },
-  { key: 'jazz', label: '재즈' },
-  { key: 'indie', label: '인디' },
+  {
+    key: 'rnh',
+    label: '힙합/랩',
+    matchTerms: ['힙합', '랩', 'hip hop', 'hiphop', 'rap', 'rnh'],
+  },
 ] as const;
 
-const buildMatchTerms = (key: string, label: string) => {
+const buildMatchTerms = (key: string, label: string, extraTerms: string[] = []) => {
   const terms = new Set<string>();
   [key, label].forEach((term) => {
     term
@@ -58,6 +54,7 @@ const buildMatchTerms = (key: string, label: string) => {
       .filter(Boolean)
       .forEach((piece) => terms.add(piece));
   });
+  extraTerms.map((t) => t.trim().toLowerCase()).filter(Boolean).forEach((t) => terms.add(t));
   return [...terms];
 };
 
@@ -196,7 +193,7 @@ const Genres: React.FC = () => {
                       key={genre.key}
                       title={genre.label}
                       genre={genre.label}
-                      matchTerms={buildMatchTerms(genre.key, genre.label)}
+                      matchTerms={buildMatchTerms(genre.key, genre.label, genre.matchTerms)}
                       searchQuery={searchQuery}
                       albums={albums}
                     />

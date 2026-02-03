@@ -47,13 +47,7 @@ const Discover: React.FC = () => {
     return parts;
   };
 
-  const genres = useMemo(() => {
-    const set = new Set<string>();
-    albums.forEach((album) => {
-      normalizeGenres(album.genres || []).forEach((g) => set.add(g));
-    });
-    return [...set].slice(0, 12);
-  }, [albums]);
+  const genres = useMemo(() => ['힙합/랩'], []);
 
   if (loading) {
     return (

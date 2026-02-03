@@ -96,15 +96,12 @@ const Community: React.FC = () => {
   }, [reviews, albumMap]);
 
   const genreBoards = [
-    { id: 'g1', name: 'Ballad', match: ['발라드'], color: 'from-purple-500/20 to-indigo-500/10' },
-    { id: 'g2', name: 'Dance, Pop', match: ['댄스', '팝'], color: 'from-red-500/20 to-pink-500/10' },
-    { id: 'g3', name: 'Folk, Blues', match: ['포크', '블루스'], color: 'from-blue-500/20 to-cyan-500/10' },
-    { id: 'g4', name: 'Idol', match: ['아이돌'], color: 'from-yellow-500/20 to-orange-500/10' },
-    { id: 'g5', name: 'Rap, Hip Hop', match: ['랩', '힙합'], color: 'from-green-500/20 to-emerald-500/10' },
-    { id: 'g6', name: 'R&B, Soul', match: ['R&B', '알앤비', '소울'], color: 'from-rose-500/20 to-purple-500/10' },
-    { id: 'g7', name: 'Rock, Metal', match: ['록', '락', '메탈'], color: 'from-gray-500/20 to-slate-500/10' },
-    { id: 'g8', name: 'Jazz', match: ['재즈'], color: 'from-amber-500/20 to-yellow-500/10' },
-    { id: 'g9', name: 'Indie', match: ['인디'], color: 'from-teal-500/20 to-sky-500/10' },
+    {
+      id: 'g1',
+      name: 'Hip Hop / Rap',
+      match: ['랩', '힙합', 'hip hop', 'hiphop', 'rap', 'rnh'],
+      color: 'from-green-500/20 to-emerald-500/10',
+    },
   ];
 
   const normalizeGenres = (genres: string[]): string[] => {

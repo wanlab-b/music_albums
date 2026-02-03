@@ -17,15 +17,7 @@ import MyPage from './pages/MyPage';
 import { AuthProvider } from './contexts/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
-import BalladPage from './pages/genre/BalladPage';
-import DancePopPage from './pages/genre/DancePopPage';
-import FolkBluesPage from './pages/genre/FolkBluesPage';
-import IdolPage from './pages/genre/IdolPage';
 import RapHipHopPage from './pages/genre/RapHipHopPage';
-import RnBSoulPage from './pages/genre/RnBSoulPage';
-import RockMetalPage from './pages/genre/RockMetalPage';
-import JazzPage from './pages/genre/JazzPage';
-import IndiePage from './pages/genre/IndiePage';
 import ReviewerOfMonth from './pages/ReviewerOfMonth';
 import UserProfile from './pages/UserProfile';
 import About from './pages/About';
@@ -94,15 +86,7 @@ const App: React.FC = () => {
                 <Route path="/mypage" element={<MyPage />} />
                 <Route path="/album/:id" element={<AlbumDetail />} />
                 <Route path="/artist/:id" element={<ArtistDetail />} />
-                <Route path="/community/ballad" element={<BalladPage />} />
-                <Route path="/community/dance-pop" element={<DancePopPage />} />
-                <Route path="/community/folk-blues" element={<FolkBluesPage />} />
-                <Route path="/community/idol" element={<IdolPage />} />
                 <Route path="/community/rap-hip-hop" element={<RapHipHopPage />} />
-                <Route path="/community/rnb-soul" element={<RnBSoulPage />} />
-                <Route path="/community/rock-metal" element={<RockMetalPage />} />
-                <Route path="/community/jazz" element={<JazzPage />} />
-                <Route path="/community/indie" element={<IndiePage />} />
                 <Route path="/community/reviewer-of-the-month" element={<ReviewerOfMonth />} />
                 <Route path="/user/:userId" element={<UserProfile />} />
                 <Route path="/about" element={<About />} />
