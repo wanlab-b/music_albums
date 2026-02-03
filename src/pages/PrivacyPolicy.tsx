@@ -20,6 +20,14 @@ const PrivacyPolicy: React.FC = () => {
           <h2 className="text-base font-bold text-white mb-1">보관 기간</h2>
           <p>회원 탈퇴 시 즉시 파기, 관련 법령이 정한 경우 해당 기간 동안 보관</p>
         </div>
+        <div>
+          <h2 className="text-base font-bold text-white mb-1">제3자 제공</h2>
+          <p>법령에 근거한 경우를 제외하고 개인정보를 외부에 제공하지 않습니다.</p>
+        </div>
+        <div>
+          <h2 className="text-base font-bold text-white mb-1">이용자 권리</h2>
+          <p>이용자는 개인정보 열람/정정/삭제를 요청할 수 있으며, 문의 채널을 통해 접수 가능합니다.</p>
+        </div>
       </div>
     </div>
   );

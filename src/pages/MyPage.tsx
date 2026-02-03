@@ -1,21 +1,49 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { MOCK_ALBUMS, MOCK_REVIEWS } from '../constants';
 import AlbumCard from '../components/AlbumCard';
 import ReviewItem from '../components/ReviewItem';
-import { Settings, Users, Star, MessageSquare } from 'lucide-react';
+import { Settings, Star, MessageSquare, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getReviewsByUserId } from '@/services/reviewService';
+import { getAllAlbums } from '@/services/albumService';
+import { Album, Review } from '@/types';
 
 const MyPage: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'albums' | 'reviews'>('albums');
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Filter albums that are "Life Albums" (Mock logic: userScore >= 80)
-  // In a real app, this would query the user's ratings
-  const lifeAlbums = MOCK_ALBUMS.filter(album => album.userScore >= 80);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user) return;
+      setLoading(true);
+      const [reviewData, albumData] = await Promise.all([
+        getReviewsByUserId(user.id),
+        getAllAlbums()
+      ]);
+      setReviews(reviewData);
+      setAlbums(albumData);
+      setLoading(false);
+    };
+    fetchData();
+  }, [user]);
 
-  // Filter reviews for the current user (Mock logic: matches hardcoded username in MOCK_REVIEWS or just show all for demo)
-  const myReviews = MOCK_REVIEWS; 
+  const albumMap = useMemo(() => {
+    const map = new Map<string, Album>();
+    albums.forEach((album) => map.set(album.id, album));
+    return map;
+  }, [albums]);
+
+  const lifeAlbums = useMemo(() => {
+    const ids = new Set(
+      reviews.filter((review) => review.rating >= 80 && review.albumId).map((review) => review.albumId!)
+    );
+    return [...ids].map((id) => albumMap.get(id)).filter(Boolean) as Album[];
+  }, [reviews, albumMap]);
+
+  const myReviews = reviews;
 
   if (!user) {
     return (
@@ -24,6 +52,14 @@ const MyPage: React.FC = () => {
         <Link to="/login" className="px-6 py-3 bg-primary text-white rounded-full font-bold hover:bg-indigo-500 transition-colors">
           로그인 페이지로 이동
         </Link>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
       </div>
     );
   }
@@ -42,7 +78,7 @@ const MyPage: React.FC = () => {
                   alt={user.name} 
                   className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-dark-bg object-cover shadow-2xl"
                 />
-                <button className="absolute bottom-2 right-2 p-2 bg-dark-card rounded-full text-white border border-white/10 hover:bg-white/10 transition-colors shadow-lg">
+                <button disabled className="absolute bottom-2 right-2 p-2 bg-dark-card rounded-full text-gray-500 border border-white/10 cursor-not-allowed shadow-lg">
                     <Settings className="w-4 h-4" />
                 </button>
             </div>
@@ -58,20 +94,12 @@ const MyPage: React.FC = () => {
                    <span className="text-white font-bold text-lg">{myReviews.length}</span>
                    <span className="text-gray-500 text-sm uppercase tracking-wider font-medium">Reviews</span>
                 </div>
-                <div className="flex items-center gap-2">
-                   <span className="text-white font-bold text-lg">142</span>
-                   <span className="text-gray-500 text-sm uppercase tracking-wider font-medium">Followers</span>
-                </div>
-                <div className="flex items-center gap-2">
-                   <span className="text-white font-bold text-lg">56</span>
-                   <span className="text-gray-500 text-sm uppercase tracking-wider font-medium">Following</span>
-                </div>
               </div>
             </div>
 
             {/* Edit Profile Button */}
             <div className="mb-4">
-               <button className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-white text-sm font-medium transition-colors">
+               <button disabled className="px-4 py-2 bg-white/10 border border-white/10 rounded-lg text-gray-400 text-sm font-medium cursor-not-allowed">
                  프로필 편집
                </button>
             </div>

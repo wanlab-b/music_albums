@@ -20,6 +20,8 @@ export interface Review {
   rating: number;
   content: string;
   date: string;
+  albumId?: string;
+  userId?: string;
   avatarUrl?: string;
 }
 

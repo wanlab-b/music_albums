@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { MOCK_ALBUMS } from '@/constants';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Search } from 'lucide-react';
 import { Album } from '@/types';
 import { getAlbumCoverUrl } from '@/utils/media';
+import { getAllAlbums } from '@/services/albumService';
+import { Loader2 } from 'lucide-react';
 
 // Helper for the AOTY style score bar - Compacted
 const ScoreBar = ({ score, count }: { score: number; count: number }) => {
@@ -25,21 +26,35 @@ const ScoreBar = ({ score, count }: { score: number; count: number }) => {
   );
 };
 
+const normalizeGenres = (genres: string[]): string[] => {
+  const parts: string[] = [];
+  genres.forEach((g) => {
+    g.split(/[,/]/).forEach((piece) => {
+      const trimmed = piece.trim();
+      if (trimmed) parts.push(trimmed);
+    });
+  });
+  return parts;
+};
+
 const GenreSection = ({
   title,
   genre,
   searchQuery,
+  albums,
 }: {
   title: string;
   genre: string;
   searchQuery: string;
+  albums: Album[];
 }) => {
   // Filter albums by genre and search query
-  const allAlbums = MOCK_ALBUMS
-    .filter(album => album.genres.includes(genre))
-    .filter(album =>
-      album.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      album.artist.toLowerCase().includes(searchQuery.toLowerCase())
+  const allAlbums = albums
+    .filter((album) => normalizeGenres(album.genres || []).includes(genre))
+    .filter(
+      (album) =>
+        album.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        album.artist.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .sort((a, b) => b.criticScore - a.criticScore);
 
@@ -97,14 +112,39 @@ const GenreSection = ({
 
 const Genres: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Get all unique genres from the mock data
-  const allGenres = [...new Set(MOCK_ALBUMS.flatMap(album => album.genres))];
+  useEffect(() => {
+    const fetchAlbums = async () => {
+      const data = await getAllAlbums();
+      setAlbums(data);
+      setLoading(false);
+    };
+    fetchAlbums();
+  }, []);
 
-  const filteredAlbumCount = MOCK_ALBUMS.filter(album =>
-    album.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    album.artist.toLowerCase().includes(searchQuery.toLowerCase())
+  const allGenres = useMemo(() => {
+    const genreSet = new Set<string>();
+    albums.forEach((album) => {
+      normalizeGenres(album.genres || []).forEach((g) => genreSet.add(g));
+    });
+    return [...genreSet].sort();
+  }, [albums]);
+
+  const filteredAlbumCount = albums.filter(
+    (album) =>
+      album.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      album.artist.toLowerCase().includes(searchQuery.toLowerCase())
   ).length;
+
+  if (loading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-dark-bg">
@@ -126,12 +166,13 @@ const Genres: React.FC = () => {
                 </div>
 
                 {filteredAlbumCount > 0 ? (
-                  allGenres.map(genre => (
+                  allGenres.map((genre) => (
                     <GenreSection
                       key={genre}
                       title={genre}
                       genre={genre}
                       searchQuery={searchQuery}
+                      albums={albums}
                     />
                   ))
                 ) : (
@@ -145,7 +186,7 @@ const Genres: React.FC = () => {
                 <div className="mt-8 border-t border-white/10 pt-4">
                      <h3 className="text-sm font-bold text-white uppercase mb-4">All Genres</h3>
                      <div className="flex flex-wrap gap-2">
-                        {allGenres.map(g => (
+                        {allGenres.map((g) => (
                             <button key={g} className="px-3 py-1 bg-dark-card border border-white/10 hover:border-white/30 text-xs text-gray-400 hover:text-white transition-colors">
                                 {g}
                             </button>

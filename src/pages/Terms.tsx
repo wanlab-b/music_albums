@@ -20,6 +20,14 @@ const Terms: React.FC = () => {
           <h2 className="text-base font-bold text-white mb-1">정책 변경</h2>
           <p>약관은 변경될 수 있으며, 변경 시 서비스 내 공지합니다.</p>
         </div>
+        <div>
+          <h2 className="text-base font-bold text-white mb-1">계정 및 접근</h2>
+          <p>부정 사용을 방지하기 위해 특정 기능 접근이 제한될 수 있습니다.</p>
+        </div>
+        <div>
+          <h2 className="text-base font-bold text-white mb-1">저작권</h2>
+          <p>사이트 내 데이터/콘텐츠의 무단 복제 및 재배포는 금지됩니다.</p>
+        </div>
       </div>
     </div>
   );

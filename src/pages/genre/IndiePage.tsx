@@ -1,11 +1,13 @@
-import React from 'react';
+import React from "react";
+import GenrePage from "./GenrePage";
 
 const IndiePage: React.FC = () => {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-4xl font-black text-white">Indie Genre Page</h1>
-      <p className="text-gray-400 mt-2">This is a placeholder for the Indie genre page.</p>
-    </div>
+    <GenrePage
+      title="인디"
+      genre="인디"
+      description="새로운 시도와 개성이 돋보이는 인디 앨범들을 모았습니다."
+    />
   );
 };
 

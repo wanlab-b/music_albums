@@ -1,11 +1,13 @@
-import React from 'react';
+import React from "react";
+import GenrePage from "./GenrePage";
 
 const RockMetalPage: React.FC = () => {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-4xl font-black text-white">Rock, Metal Genre Page</h1>
-      <p className="text-gray-400 mt-2">This is a placeholder for the Rock, Metal genre page.</p>
-    </div>
+    <GenrePage
+      title="록 · 메탈"
+      genre="록"
+      description="강렬한 사운드와 에너지의 록/메탈 앨범을 모았습니다."
+    />
   );
 };
 

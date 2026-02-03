@@ -1,53 +1,60 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MOCK_ALBUMS, MOCK_REVIEWS } from '../constants';
 import AlbumCard from '../components/AlbumCard';
 import ReviewItem from '../components/ReviewItem';
-import { Star, MessageSquare } from 'lucide-react';
-
-// Mock function to get user data by ID
-const getUserById = (id: string) => {
-  const mockUsers = [
-    { id: '1', name: 'IndieLover', avatarUrl: 'https://picsum.photos/100/100?random=20', email: 'indie@lover.com', reviews: 142, followers: 890, following: 120 },
-    { id: '2', name: 'KpopMaster', avatarUrl: 'https://picsum.photos/100/100?random=21', email: 'kpop@master.com', reviews: 98, followers: 1200, following: 250 },
-    { id: '3', name: 'JazzCat', avatarUrl: 'https://picsum.photos/100/100?random=22', email: 'jazz@cat.com', reviews: 340, followers: 450, following: 80 },
-    { id: '4', name: 'NewWave', avatarUrl: 'https://picsum.photos/100/100?random=23', email: 'new@wave.com', reviews: 67, followers: 230, following: 50 },
-    { id: '5', name: 'RockFan', avatarUrl: 'https://picsum.photos/100/100?random=24', email: 'rock@fan.com', reviews: 210, followers: 600, following: 180 },
-    { id: '6', name: 'HipHopHead', avatarUrl: 'https://picsum.photos/100/100?random=25', email: 'hiphop@head.com', reviews: 180, followers: 500, following: 150 },
-  ];
-  return mockUsers.find(user => user.id === id);
-};
-
+import { Star, MessageSquare, Loader2 } from 'lucide-react';
+import { getReviewsByUserId } from '@/services/reviewService';
+import { getAllAlbums } from '@/services/albumService';
+import { Album, Review } from '@/types';
 
 const UserProfile: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
-  const [user, setUser] = useState<any>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'albums' | 'reviews'>('albums');
-  const [isFollowing, setIsFollowing] = useState<boolean>(false); // New state for follow button
 
   useEffect(() => {
-    if (userId) {
-      const userData = getUserById(userId);
-      setUser(userData);
-      // Mock: check if currently following (e.g., from local storage or context)
-      // For now, let's randomly set it or keep it false
-      setIsFollowing(Math.random() > 0.5); // Example: randomly set for demonstration
-    }
+    const fetchData = async () => {
+      if (!userId) return;
+      setLoading(true);
+      const [reviewData, albumData] = await Promise.all([
+        getReviewsByUserId(userId),
+        getAllAlbums()
+      ]);
+      setReviews(reviewData);
+      setAlbums(albumData);
+      setLoading(false);
+    };
+    fetchData();
   }, [userId]);
 
-  const handleFollowToggle = () => {
-    const nextIsFollowing = !isFollowing;
-    setIsFollowing(nextIsFollowing);
-    setUser(current => {
-      if (!current) return current;
-      const delta = nextIsFollowing ? 1 : -1;
-      return { ...current, followers: current.followers + delta };
-    });
-    // In a real application, you would make an API call here
-    console.log(nextIsFollowing ? `Following ${user.name}` : `Unfollowing ${user.name}`);
-  };
+  const userName = reviews[0]?.username ?? 'User';
+  const userAvatar = reviews[0]?.avatarUrl ?? `https://picsum.photos/seed/${encodeURIComponent(userId ?? 'user')}/200/200`;
+  const userEmail = userId ?? '';
 
-  if (!user) {
+  const albumMap = useMemo(() => {
+    const map = new Map<string, Album>();
+    albums.forEach((album) => map.set(album.id, album));
+    return map;
+  }, [albums]);
+
+  const lifeAlbums = useMemo(() => {
+    const ids = new Set(
+      reviews.filter((review) => review.rating >= 80 && review.albumId).map((review) => review.albumId!)
+    );
+    return [...ids].map((id) => albumMap.get(id)).filter(Boolean) as Album[];
+  }, [reviews, albumMap]);
+
+  if (loading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
+  }
+
+  if (reviews.length === 0) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
         <h2 className="text-2xl font-bold text-white mb-4">User not found</h2>
@@ -57,9 +64,6 @@ const UserProfile: React.FC = () => {
       </div>
     );
   }
-  
-  const lifeAlbums = MOCK_ALBUMS.filter(album => album.userScore >= 80);
-  const myReviews = MOCK_REVIEWS;
 
   return (
     <div className="min-h-screen pb-20">
@@ -70,42 +74,23 @@ const UserProfile: React.FC = () => {
           <div className="flex flex-col md:flex-row items-end md:items-end gap-6 w-full">
             {/* Avatar */}
             <img 
-              src={user.avatarUrl} 
-              alt={user.name} 
+              src={userAvatar} 
+              alt={userName} 
               className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-dark-bg object-cover shadow-2xl"
             />
             
             {/* User Info */}
             <div className="flex-1 mb-2">
-              <h1 className="text-3xl font-black text-white mb-1">{user.name}</h1>
-              <p className="text-gray-400 text-sm mb-4">{user.email}</p>
+              <h1 className="text-3xl font-black text-white mb-1">{userName}</h1>
+              <p className="text-gray-400 text-sm mb-4">{userEmail}</p>
               
               {/* Stats */}
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
-                   <span className="text-white font-bold text-lg">{user.reviews}</span>
+                   <span className="text-white font-bold text-lg">{reviews.length}</span>
                    <span className="text-gray-500 text-sm uppercase tracking-wider font-medium">Reviews</span>
                 </div>
-                <div className="flex items-center gap-2">
-                   <span className="text-white font-bold text-lg">{user.followers}</span>
-                   <span className="text-gray-500 text-sm uppercase tracking-wider font-medium">Followers</span>
-                </div>
-                <div className="flex items-center gap-2">
-                   <span className="text-white font-bold text-lg">{user.following}</span>
-                   <span className="text-gray-500 text-sm uppercase tracking-wider font-medium">Following</span>
-                </div>
               </div>
-            </div>
-
-            {/* Follow Button */}
-            <div className="mb-4">
-               <button 
-                 onClick={handleFollowToggle}
-                 className={`px-4 py-2 rounded-lg text-white text-sm font-bold transition-colors 
-                           ${isFollowing ? 'bg-gray-600 hover:bg-gray-700' : 'bg-primary hover:bg-indigo-500'}`}
-               >
-                 {isFollowing ? 'Following' : 'Follow'}
-               </button>
             </div>
           </div>
         </div>
@@ -127,7 +112,7 @@ const UserProfile: React.FC = () => {
                className={`py-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'reviews' ? 'border-primary text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
             >
               <MessageSquare className="w-4 h-4" />
-              Reviews ({myReviews.length})
+              Reviews ({reviews.length})
             </button>
           </div>
         </div>
@@ -137,7 +122,7 @@ const UserProfile: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {activeTab === 'albums' ? (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-white">{user.name}'s High Rated Albums</h2>
+            <h2 className="text-xl font-bold text-white">{userName}'s High Rated Albums</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {lifeAlbums.map(album => (
                 <AlbumCard key={album.id} album={album} />
@@ -146,10 +131,10 @@ const UserProfile: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-6">
-             <h2 className="text-xl font-bold text-white">{user.name}'s Reviews</h2>
+             <h2 className="text-xl font-bold text-white">{userName}'s Reviews</h2>
              <div className="grid grid-cols-1 gap-4">
-                {myReviews.map(review => (
-                    <ReviewItem key={review.id} review={{...review, username: user.name, avatarUrl: user.avatarUrl}} />
+                {reviews.map(review => (
+                    <ReviewItem key={review.id} review={{...review, username: userName, avatarUrl: userAvatar}} />
                 ))}
              </div>
           </div>

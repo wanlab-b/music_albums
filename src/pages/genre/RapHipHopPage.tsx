@@ -1,11 +1,13 @@
-import React from 'react';
+import React from "react";
+import GenrePage from "./GenrePage";
 
 const RapHipHopPage: React.FC = () => {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-4xl font-black text-white">Rap, Hip Hop Genre Page</h1>
-      <p className="text-gray-400 mt-2">This is a placeholder for the Rap, Hip Hop genre page.</p>
-    </div>
+    <GenrePage
+      title="랩 · 힙합"
+      genre="힙합"
+      description="리듬과 메시지가 강렬한 랩/힙합 앨범을 모아보았습니다."
+    />
   );
 };
 

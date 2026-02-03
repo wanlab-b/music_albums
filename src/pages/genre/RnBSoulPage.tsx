@@ -1,11 +1,13 @@
-import React from 'react';
+import React from "react";
+import GenrePage from "./GenrePage";
 
 const RnBSoulPage: React.FC = () => {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-4xl font-black text-white">R&B, Soul Genre Page</h1>
-      <p className="text-gray-400 mt-2">This is a placeholder for the R&B, Soul genre page.</p>
-    </div>
+    <GenrePage
+      title="R&B · Soul"
+      genre="R&B"
+      description="그루브와 감성이 돋보이는 R&B/소울 앨범을 만나보세요."
+    />
   );
 };
 

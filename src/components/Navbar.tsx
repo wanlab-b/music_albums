@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Menu, User as UserIcon, Disc, X, LogOut, Settings } from 'lucide-react';
+import { Search, Menu, User as UserIcon, Disc, X, LogOut } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -112,10 +112,6 @@ const Navbar: React.FC = () => {
                         <UserIcon className="w-4 h-4" />
                         마이페이지
                       </Link>
-                      <a href="#" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors">
-                        <Settings className="w-4 h-4" />
-                        설정
-                      </a>
                       <button 
                         onClick={handleLogout}
                         className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-white/5 hover:text-red-300 transition-colors text-left"

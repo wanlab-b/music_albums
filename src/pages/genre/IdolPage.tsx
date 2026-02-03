@@ -1,11 +1,13 @@
-import React from 'react';
+import React from "react";
+import GenrePage from "./GenrePage";
 
 const IdolPage: React.FC = () => {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-4xl font-black text-white">Idol Genre Page</h1>
-      <p className="text-gray-400 mt-2">This is a placeholder for the Idol genre page.</p>
-    </div>
+    <GenrePage
+      title="아이돌"
+      genre="아이돌"
+      description="트렌드를 이끄는 아이돌 앨범과 수록곡을 한눈에 확인하세요."
+    />
   );
 };
 

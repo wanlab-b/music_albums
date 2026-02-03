@@ -1,26 +1,67 @@
-import React from 'react';
-import { MOCK_ALBUMS } from '@/constants';
+import React, { useEffect, useMemo, useState } from 'react';
 import AlbumCard from '@/components/AlbumCard';
 import { Compass, ChevronDown, Tag, Calendar, TrendingUp, Mic2, Heart, Flame, Sparkles, Radio } from 'lucide-react';
+import { getAllAlbums } from '@/services/albumService';
+import { Album } from '@/types';
+import { Link } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 
 const Discover: React.FC = () => {
-  // Simulate different datasets for UI variety
-  // 1. Popular Now: Random slice or high total score
-  const popularNow = [...MOCK_ALBUMS].sort(() => 0.5 - Math.random()).slice(0, 6);
-  
-  // 2. Highly Anticipated: Mock future releases (reusing existing data for UI)
-  const highlyAnticipated = [...MOCK_ALBUMS].slice(0, 6);
-  
-  // 3. Under the Radar: High Critic Score but maybe niche genres or random selection
-  const underTheRadar = MOCK_ALBUMS.filter(a => a.criticScore >= 80).reverse().slice(0, 6);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // 4. Must Listen (Critics)
-  const mustListen = MOCK_ALBUMS.filter(a => a.criticScore >= 85).slice(0, 6);
-  
-  // 5. User Favorites
-  const userFavorites = MOCK_ALBUMS.filter(a => a.userScore >= 85).slice(0, 6);
-  
-  const genres = ['K-Pop', 'R&B', 'Hip Hop', 'Indie Rock', 'Pop', 'Electronic', 'Jazz', 'Alternative'];
+  useEffect(() => {
+    const fetchAlbums = async () => {
+      const data = await getAllAlbums();
+      setAlbums(data);
+      setLoading(false);
+    };
+    fetchAlbums();
+  }, []);
+
+  const shuffle = (items: Album[]) => [...items].sort(() => 0.5 - Math.random());
+
+  const popularNow = useMemo(() => shuffle(albums).slice(0, 6), [albums]);
+  const highlyAnticipated = useMemo(() => albums.slice(0, 6), [albums]);
+  const underTheRadar = useMemo(
+    () => albums.filter((a) => a.criticScore >= 80).slice(0, 6),
+    [albums]
+  );
+  const mustListen = useMemo(
+    () => albums.filter((a) => a.criticScore >= 85).slice(0, 6),
+    [albums]
+  );
+  const userFavorites = useMemo(
+    () => albums.filter((a) => a.userScore >= 85).slice(0, 6),
+    [albums]
+  );
+
+  const normalizeGenres = (genres: string[]): string[] => {
+    const parts: string[] = [];
+    genres.forEach((g) => {
+      g.split(/[,/]/).forEach((piece) => {
+        const trimmed = piece.trim();
+        if (trimmed) parts.push(trimmed);
+      });
+    });
+    return parts;
+  };
+
+  const genres = useMemo(() => {
+    const set = new Set<string>();
+    albums.forEach((album) => {
+      normalizeGenres(album.genres || []).forEach((g) => set.add(g));
+    });
+    return [...set].slice(0, 12);
+  }, [albums]);
+
+  if (loading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -57,7 +98,7 @@ const Discover: React.FC = () => {
                 <Flame className="w-5 h-5 text-orange-500" />
                 지금 뜨는 앨범 (Popular Now)
               </h2>
-              <a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">전체보기</a>
+              <Link to="/best-albums" className="text-sm text-gray-500 hover:text-white transition-colors">전체보기</Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {popularNow.map((album) => (
@@ -73,7 +114,7 @@ const Discover: React.FC = () => {
                 <Sparkles className="w-5 h-5 text-yellow-400" />
                 발매 예정 기대작 (Highly Anticipated)
               </h2>
-              <a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">전체보기</a>
+              <Link to="/new-releases" className="text-sm text-gray-500 hover:text-white transition-colors">전체보기</Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {highlyAnticipated.map((album) => (
@@ -89,7 +130,7 @@ const Discover: React.FC = () => {
                 <Radio className="w-5 h-5 text-indigo-400" />
                 숨겨진 명반 (Under the Radar)
               </h2>
-              <a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">전체보기</a>
+              <Link to="/best-albums" className="text-sm text-gray-500 hover:text-white transition-colors">전체보기</Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {underTheRadar.map((album) => (
@@ -110,9 +151,9 @@ const Discover: React.FC = () => {
                    대중적인 차트 뒤에 숨겨진 보석 같은 앨범들을 모았습니다. 
                    독창적인 사운드와 깊이 있는 가사를 만나보세요.
                 </p>
-                <button className="bg-white text-indigo-900 px-6 py-3 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors">
+                <Link to="/search?q=인디" className="inline-flex bg-white text-indigo-900 px-6 py-3 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors">
                    플레이리스트 확인하기
-                </button>
+                </Link>
              </div>
           </section>
 
@@ -123,7 +164,7 @@ const Discover: React.FC = () => {
                 <TrendingUp className="w-5 h-5 text-emerald-500" />
                 평론가들의 극찬 (Must Listen)
               </h2>
-              <a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">전체보기</a>
+              <Link to="/best-albums" className="text-sm text-gray-500 hover:text-white transition-colors">전체보기</Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {mustListen.map((album) => (
@@ -139,7 +180,7 @@ const Discover: React.FC = () => {
                 <Heart className="w-5 h-5 text-pink-500" />
                 사용자들의 극찬 (User Favorites)
               </h2>
-              <a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">전체보기</a>
+              <Link to="/best-albums" className="text-sm text-gray-500 hover:text-white transition-colors">전체보기</Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {userFavorites.map((album) => (
@@ -161,12 +202,13 @@ const Discover: React.FC = () => {
             </h3>
             <div className="flex flex-wrap gap-2">
               {genres.map(genre => (
-                <button 
+                <Link 
                   key={genre}
+                  to={`/search?q=${encodeURIComponent(genre)}`}
                   className="px-3 py-1.5 bg-white/5 hover:bg-primary hover:text-white text-gray-400 text-xs rounded-lg transition-colors border border-white/5"
                 >
                   {genre}
-                </button>
+                </Link>
               ))}
             </div>
           </div>
@@ -194,9 +236,9 @@ const Discover: React.FC = () => {
                 </li>
               ))}
             </ul>
-            <button className="w-full mt-6 text-xs text-center text-gray-500 hover:text-white transition-colors">
+            <Link to="/new-releases" className="block w-full mt-6 text-xs text-center text-gray-500 hover:text-white transition-colors">
                 캘린더 전체 보기
-            </button>
+            </Link>
           </div>
 
         </div>

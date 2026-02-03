@@ -1,15 +1,40 @@
-import React from 'react';
-import { MOCK_ALBUMS } from '../constants';
+import React, { useEffect, useMemo, useState } from 'react';
 import AlbumCard from '../components/AlbumCard';
 import { getAlbumCoverUrl } from '../utils/media';
 import { Calendar, Filter } from 'lucide-react';
+import { getAllAlbums } from '@/services/albumService';
+import { Album } from '@/types';
+import { Loader2 } from 'lucide-react';
 
 const NewReleases: React.FC = () => {
-  // Mock grouping for demonstration
-  // In a real app, this would be grouped dynamically by releaseDate
-  const thisWeek = MOCK_ALBUMS.slice(0, 6);
-  const lastWeek = MOCK_ALBUMS.slice(2, 8);
-  const upcoming = MOCK_ALBUMS.slice(0, 3);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAlbums = async () => {
+      const data = await getAllAlbums();
+      setAlbums(data);
+      setLoading(false);
+    };
+    fetchAlbums();
+  }, []);
+
+  const sorted = useMemo(
+    () => [...albums].sort((a, b) => b.releaseDate.localeCompare(a.releaseDate)),
+    [albums]
+  );
+
+  const thisWeek = sorted.slice(0, 6);
+  const lastWeek = sorted.slice(6, 12);
+  const upcoming = sorted.slice(12, 15);
+
+  if (loading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

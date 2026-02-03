@@ -99,7 +99,7 @@ const Login: React.FC = () => {
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label htmlFor="password" className="block text-sm font-medium text-gray-400">비밀번호</label>
-                <a href="#" className="text-xs font-medium text-primary hover:text-indigo-400">비밀번호를 잊으셨나요?</a>
+                <Link to="/contact" className="text-xs font-medium text-primary hover:text-indigo-400">비밀번호를 잊으셨나요?</Link>
               </div>
               <div className="relative">
                 <input

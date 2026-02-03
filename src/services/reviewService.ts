@@ -11,6 +11,8 @@ const normalizeReview = (row: Record<string, unknown>): Review => {
     rating: Number(row.rating ?? 0),
     content: (row.content as string | undefined) ?? "",
     date,
+    albumId: (row.album_id as string | undefined) ?? undefined,
+    userId: (row.user_id as string | undefined) ?? undefined,
     avatarUrl: (row.avatar_url as string | undefined) ?? (row.avatarUrl as string | undefined)
   };
 };
@@ -26,6 +28,40 @@ export const getReviewsByAlbumId = async (albumId: string): Promise<Review[]> =>
 
   if (error) {
     console.error("Error fetching reviews:", error);
+    return [];
+  }
+
+  return (data ?? []).map((row) => normalizeReview(row as Record<string, unknown>));
+};
+
+export const getRecentReviews = async (limit = 20): Promise<Review[]> => {
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("id, album_id, user_id, username, rating, content, created_at, avatar_url")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("Error fetching recent reviews:", error);
+    return [];
+  }
+
+  return (data ?? []).map((row) => normalizeReview(row as Record<string, unknown>));
+};
+
+export const getReviewsByUserId = async (userId: string): Promise<Review[]> => {
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("id, album_id, user_id, username, rating, content, created_at, avatar_url")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching user reviews:", error);
     return [];
   }
 
