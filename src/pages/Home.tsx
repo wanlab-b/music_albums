@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import AlbumCard from '@/components/AlbumCard';
 import { getAllAlbums } from '@/services/albumService';
 import { Album } from '@/types';
+import {
+  trackContentSelection,
+  trackFeaturedAlbumListSelection,
+  trackItemListView,
+} from '@/analytics';
 import { ArrowRight, Flame, Calendar, Star, Loader2 } from 'lucide-react';
 
 const Home: React.FC = () => {
+  const location = useLocation();
   const [albums, setAlbums] = useState<Album[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,6 +33,32 @@ const Home: React.FC = () => {
   const newReleases = [...albums]
     .sort((a, b) => b.releaseDate.localeCompare(a.releaseDate))
     .slice(0, 6);
+
+  useEffect(() => {
+    if (loading) return;
+
+    const toAnalyticsItem = (album: Album) => ({
+      id: album.id,
+      title: album.title,
+      artist: album.artist,
+      genre: album.genres[0],
+    });
+
+    trackItemListView({
+      itemListId: 'home_trending',
+      itemListName: 'Home Trending',
+      items: trendingAlbums.map(toAnalyticsItem),
+      navigationKey: location.key,
+      component: 'Home',
+    });
+    trackItemListView({
+      itemListId: 'home_new_releases',
+      itemListName: 'Home New Releases',
+      items: newReleases.map(toAnalyticsItem),
+      navigationKey: location.key,
+      component: 'Home',
+    });
+  }, [loading, location.key]);
 
   if (loading) {
     return (
@@ -59,9 +91,15 @@ const Home: React.FC = () => {
             MuzikPick 에디터들이 선정한 이번 달 필청 앨범들을 확인해보세요.
             트렌디한 팝부터 인디 록까지.
           </p>
-          <button className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full font-bold hover:bg-gray-200 transition-colors">
+          <Link
+            to="/best-albums"
+            id="home-featured-album-list"
+            data-testid="home-featured-album-list"
+            onClick={() => trackFeaturedAlbumListSelection()}
+            className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full font-bold hover:bg-gray-200 transition-colors"
+          >
             리스트 확인하기 <ArrowRight className="w-4 h-4" />
-          </button>
+          </Link>
         </div>
       </section>
 
@@ -73,14 +111,31 @@ const Home: React.FC = () => {
               <Flame className="w-6 h-6 text-orange-500" />
               <h2 className="text-2xl font-bold text-white">실시간 트렌딩</h2>
             </div>
-            <Link to="/discover" className="text-sm text-gray-400 hover:text-white transition-colors">
+            <Link
+              to="/discover"
+              onClick={() => trackContentSelection({
+                contentType: 'album_list',
+                contentId: 'home_trending',
+                destinationPath: '/discover',
+                component: 'Home',
+                pageSection: 'home_trending',
+              })}
+              className="text-sm text-gray-400 hover:text-white transition-colors"
+            >
               더보기
             </Link>
           </div>
           {trendingAlbums.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {trendingAlbums.map((album, index) => (
-                <AlbumCard key={album.id} album={album} rank={index + 1} />
+                <AlbumCard
+                  key={album.id}
+                  album={album}
+                  rank={index + 1}
+                  index={index}
+                  itemListId="home_trending"
+                  itemListName="Home Trending"
+                />
               ))}
             </div>
           ) : (
@@ -95,14 +150,30 @@ const Home: React.FC = () => {
               <Calendar className="w-6 h-6 text-primary" />
               <h2 className="text-2xl font-bold text-white">최신 발매</h2>
             </div>
-            <Link to="/new-releases" className="text-sm text-gray-400 hover:text-white transition-colors">
+            <Link
+              to="/new-releases"
+              onClick={() => trackContentSelection({
+                contentType: 'album_list',
+                contentId: 'home_new_releases',
+                destinationPath: '/new-releases',
+                component: 'Home',
+                pageSection: 'home_new_releases',
+              })}
+              className="text-sm text-gray-400 hover:text-white transition-colors"
+            >
               더보기
             </Link>
           </div>
           {newReleases.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {newReleases.map((album) => (
-                <AlbumCard key={album.id} album={album} />
+              {newReleases.map((album, index) => (
+                <AlbumCard
+                  key={album.id}
+                  album={album}
+                  index={index}
+                  itemListId="home_new_releases"
+                  itemListName="Home New Releases"
+                />
               ))}
             </div>
           ) : (
@@ -125,9 +196,19 @@ const Home: React.FC = () => {
                     <p className="text-sm text-primary mt-4 font-bold">- Reviewer 'IndiePopLover' on "NewJeans"</p>
                 </div>
                 <div className="flex-shrink-0">
-                    <button className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white transition-colors font-medium">
+                    <Link
+                      to="/community"
+                      onClick={() => trackContentSelection({
+                        contentType: 'community',
+                        contentId: 'best_review_highlight',
+                        destinationPath: '/community',
+                        component: 'Home',
+                        pageSection: 'community-highlight',
+                      })}
+                      className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white transition-colors font-medium"
+                    >
                         커뮤니티로 이동
-                    </button>
+                    </Link>
                 </div>
             </div>
         </section>

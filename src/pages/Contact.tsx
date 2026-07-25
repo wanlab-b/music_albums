@@ -1,4 +1,5 @@
 import React from "react";
+import { trackContactIntent } from "@/analytics";
 
 const Contact: React.FC = () => {
   return (
@@ -9,7 +10,17 @@ const Contact: React.FC = () => {
       </p>
       <div className="bg-dark-card border border-white/10 rounded-2xl p-6">
         <h2 className="text-lg font-bold text-white mb-2">Contact</h2>
-        <p className="text-gray-400 text-sm">Email: support@muzikpick.com</p>
+        <p className="text-gray-400 text-sm">
+          Email:{" "}
+          <a
+            id="contact-support-email"
+            href="mailto:support@muzikpick.com"
+            onClick={() => trackContactIntent()}
+            className="text-primary hover:underline underline-offset-4"
+          >
+            support@muzikpick.com
+          </a>
+        </p>
         <p className="text-gray-500 text-xs mt-2">평균 응답 시간: 영업일 기준 1-3일</p>
         <p className="text-gray-500 text-xs mt-1">운영 시간: 월-금 10:00-18:00 (KST)</p>
       </div>

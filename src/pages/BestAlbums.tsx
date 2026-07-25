@@ -4,6 +4,11 @@ import { Filter, ChevronDown, Check, Disc, Music2, Loader2 } from 'lucide-react'
 import { getAllAlbums } from '@/services/albumService';
 import { Album } from '@/types';
 import { getAlbumCoverUrl } from '@/utils/media';
+import {
+  trackAlbumSelect,
+  trackChartFilter,
+  trackListExpansion,
+} from '@/analytics';
 
 const BestAlbums: React.FC = () => {
   const [albums, setAlbums] = useState<Album[]>([]);
@@ -107,6 +112,92 @@ const BestAlbums: React.FC = () => {
     setActiveDropdown(activeDropdown === name ? null : name);
   };
 
+  const getFilteredResultCount = (year: string, genre: string) =>
+    albums.filter((album) => {
+      const matchesYear = year === 'All' || album.releaseDate.startsWith(year);
+      const matchesGenre = genre === 'All' || album.genres?.includes(genre);
+      return matchesYear && matchesGenre;
+    }).length;
+
+  const handleFilterSelection = (
+    filterName: 'year' | 'genre' | 'sort',
+    filterValue: string,
+  ) => {
+    const currentValue =
+      filterName === 'year'
+        ? selectedYear
+        : filterName === 'genre'
+          ? selectedGenre
+          : selectedSort;
+
+    if (filterValue === currentValue) {
+      setActiveDropdown(null);
+      return;
+    }
+
+    const nextYear = filterName === 'year' ? filterValue : selectedYear;
+    const nextGenre = filterName === 'genre' ? filterValue : selectedGenre;
+
+    if (filterName === 'year') setSelectedYear(filterValue);
+    if (filterName === 'genre') setSelectedGenre(filterValue);
+    if (filterName === 'sort') setSelectedSort(filterValue);
+
+    trackChartFilter({
+      filterName,
+      filterValue,
+      resultCount: getFilteredResultCount(nextYear, nextGenre),
+    });
+    setActiveDropdown(null);
+  };
+
+  const handleFilterReset = () => {
+    const hasActiveFilters =
+      selectedYear !== 'All' ||
+      selectedGenre !== 'All' ||
+      selectedSort !== 'Highest Rated';
+
+    if (!hasActiveFilters) return;
+
+    setSelectedYear('All');
+    setSelectedGenre('All');
+    setSelectedSort('Highest Rated');
+    trackChartFilter({
+      filterName: 'reset',
+      filterValue: 'default',
+      resultCount: albums.length,
+    });
+  };
+
+  const handleLoadMore = () => {
+    const nextVisibleCount = Math.min(
+      visibleCount + 10,
+      filteredAndSortedItems.length,
+    );
+
+    trackListExpansion({
+      listId: 'best_albums_chart',
+      visibleCount: nextVisibleCount,
+      remainingCount: Math.max(
+        filteredAndSortedItems.length - nextVisibleCount,
+        0,
+      ),
+      component: 'BestAlbums',
+    });
+    setVisibleCount(nextVisibleCount);
+  };
+
+  const handleAlbumSelection = (album: Album, index: number) => {
+    trackAlbumSelect({
+      albumId: album.id,
+      albumTitle: album.title,
+      artist: album.artist,
+      genre: album.genres?.[0],
+      itemListId: 'best_albums_chart',
+      itemListName: 'Best Albums Chart',
+      index,
+    });
+  };
+
   const getScoreColor = (score: number) => {
     if (score >= 85) return 'bg-emerald-500 text-white';
     if (score >= 70) return 'bg-yellow-500 text-white';
@@ -183,7 +274,11 @@ const BestAlbums: React.FC = () => {
                 <ChevronDown className={`w-3.5 h-3.5 text-gray-500 ml-1 transition-transform ${activeDropdown === 'year' ? 'rotate-180' : ''}`} />
             </button>
             {activeDropdown === 'year' && (
-                <DropdownMenu options={years} selected={selectedYear} onSelect={setSelectedYear} />
+                <DropdownMenu
+                  options={years}
+                  selected={selectedYear}
+                  onSelect={(value) => handleFilterSelection('year', value)}
+                />
             )}
             </div>
 
@@ -197,7 +292,11 @@ const BestAlbums: React.FC = () => {
                 <ChevronDown className={`w-3.5 h-3.5 text-gray-500 ml-1 transition-transform ${activeDropdown === 'genre' ? 'rotate-180' : ''}`} />
             </button>
             {activeDropdown === 'genre' && (
-                <DropdownMenu options={genres} selected={selectedGenre} onSelect={setSelectedGenre} />
+                <DropdownMenu
+                  options={genres}
+                  selected={selectedGenre}
+                  onSelect={(value) => handleFilterSelection('genre', value)}
+                />
             )}
             </div>
 
@@ -211,7 +310,11 @@ const BestAlbums: React.FC = () => {
                 <ChevronDown className={`w-3.5 h-3.5 text-gray-500 ml-1 transition-transform ${activeDropdown === 'sort' ? 'rotate-180' : ''}`} />
             </button>
             {activeDropdown === 'sort' && (
-                <DropdownMenu options={sortOptions} selected={selectedSort} onSelect={setSelectedSort} />
+                <DropdownMenu
+                  options={sortOptions}
+                  selected={selectedSort}
+                  onSelect={(value) => handleFilterSelection('sort', value)}
+                />
             )}
             </div>
         </div>
@@ -241,7 +344,11 @@ const BestAlbums: React.FC = () => {
                   </span>
                 </div>
                 
-                <Link to={`/album/${item.id}`} className="relative block w-full sm:w-32 aspect-square rounded-lg overflow-hidden flex-shrink-0">
+                <Link
+                  to={`/album/${item.id}`}
+                  onClick={() => handleAlbumSelection(item, index)}
+                  className="relative block w-full sm:w-32 aspect-square rounded-lg overflow-hidden flex-shrink-0"
+                >
                   <img 
                     src={getAlbumCoverUrl(item.coverUrl, item.id, 600)} 
                     alt={item.title}
@@ -253,7 +360,11 @@ const BestAlbums: React.FC = () => {
 
               {/* Info */}
               <div className="flex-grow min-w-0 py-1">
-                <Link to={`/album/${item.id}`} className="block">
+                <Link
+                  to={`/album/${item.id}`}
+                  onClick={() => handleAlbumSelection(item, index)}
+                  className="block"
+                >
                   <h3 className="text-xl sm:text-2xl font-bold text-white truncate mb-1 group-hover:text-primary transition-colors">
                     {item.title}
                   </h3>
@@ -295,11 +406,7 @@ const BestAlbums: React.FC = () => {
           <div className="text-center py-20 bg-dark-card rounded-xl border border-white/5">
             <p className="text-gray-400 text-lg">조건에 맞는 앨범이 없습니다.</p>
             <button 
-              onClick={() => {
-                setSelectedYear('All');
-                setSelectedGenre('All');
-                setSelectedSort('Highest Rated');
-              }}
+              onClick={handleFilterReset}
               className="mt-4 text-primary hover:underline"
             >
               필터 초기화
@@ -311,7 +418,7 @@ const BestAlbums: React.FC = () => {
       {visibleCount < filteredAndSortedItems.length && (
         <div className="mt-12 text-center">
           <button 
-            onClick={() => setVisibleCount(prev => prev + 10)}
+            onClick={handleLoadMore}
             className="px-8 py-3 bg-white/5 hover:bg-white/10 text-gray-300 rounded-full text-sm font-medium transition-colors border border-white/5"
           >
               더 보기

@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import AlbumCard from '@/components/AlbumCard';
 import { getAllAlbums } from '@/services/albumService';
 import { Album } from '@/types';
 import { Loader2 } from 'lucide-react';
+import { trackItemListView, trackSearchResultsLoaded } from '@/analytics';
 
 const Search: React.FC = () => {
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const [albums, setAlbums] = useState<Album[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,31 @@ const Search: React.FC = () => {
       .sort((a, b) => b.criticScore - a.criticScore);
   }, [albums, normalizedQuery]);
 
+  useEffect(() => {
+    if (loading || !query) return;
+
+    trackSearchResultsLoaded({
+      queryLength: query.length,
+      resultCount: results.length,
+      navigationKey: location.key
+    });
+
+    if (results.length > 0) {
+      trackItemListView({
+        itemListId: 'search_results',
+        itemListName: 'Search results',
+        items: results.map((album) => ({
+          id: album.id,
+          title: album.title,
+          artist: album.artist,
+          genre: album.genres?.[0]
+        })),
+        navigationKey: location.key,
+        component: 'Search'
+      });
+    }
+  }, [loading, location.key, query, results]);
+
   if (loading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
@@ -68,8 +95,14 @@ const Search: React.FC = () => {
       {query ? (
         results.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {results.map((album) => (
-              <AlbumCard key={album.id} album={album} />
+            {results.map((album, index) => (
+              <AlbumCard
+                key={album.id}
+                album={album}
+                index={index}
+                itemListId="search_results"
+                itemListName="Search results"
+              />
             ))}
           </div>
         ) : (

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useLocation, useParams, Link } from 'react-router-dom';
 import { getAlbumById } from '@/services/albumService';
 import { getAlbumTracks } from '@/services/trackService';
 import { createReview, getReviewsByAlbumId } from '@/services/reviewService';
@@ -10,8 +10,14 @@ import { Play, Heart, Share2, PenTool, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAlbumCoverUrl } from '@/utils/media';
 import { applyBaseSeo } from '@/seo';
+import {
+  trackAlbumView,
+  trackContentSelection,
+  trackReviewSubmit
+} from '@/analytics';
 
 const AlbumDetail: React.FC = () => {
+  const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const [album, setAlbum] = useState<Album | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,6 +80,11 @@ const AlbumDetail: React.FC = () => {
       return;
     }
 
+    trackReviewSubmit({
+      albumId: album.id,
+      rating,
+      reviewLength: trimmedContent.length
+    });
     setReviews((prev) => [created, ...prev]);
     setReviewContent('');
     setRatingValue(50);
@@ -108,6 +119,13 @@ const AlbumDetail: React.FC = () => {
 
   useEffect(() => {
     if (!album) return;
+    trackAlbumView({
+      albumId: album.id,
+      albumTitle: album.title,
+      artist: album.artist,
+      genre: album.genres?.[0],
+      navigationKey: location.key
+    });
     const title = `${album.title} - ${album.artist} | MuzikPick`;
     const description =
       album.description && album.description.trim().length > 0
@@ -122,7 +140,7 @@ const AlbumDetail: React.FC = () => {
       imageAlt: `${album.artist} - ${album.title} 앨범 커버`,
       type: "music.album"
     });
-  }, [album]);
+  }, [album, location.key]);
 
   if (loading) {
     return (
@@ -189,6 +207,15 @@ const AlbumDetail: React.FC = () => {
              {album.artistId ? (
                <Link
                  to={`/artist/${album.artistId}`}
+                 onClick={() =>
+                   trackContentSelection({
+                     contentType: 'artist',
+                     contentId: String(album.artistId),
+                     destinationPath: `/artist/${album.artistId}`,
+                     component: 'AlbumDetail',
+                     pageSection: 'album-detail'
+                   })
+                 }
                  className="text-lg md:text-xl text-gray-300 font-medium hover:text-white transition-colors"
                >
                  {album.artist}

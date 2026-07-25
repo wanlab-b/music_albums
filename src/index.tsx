@@ -1,6 +1,7 @@
 import React, { Component, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { trackException } from './analytics';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -21,6 +22,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
   componentDidCatch(error: any, errorInfo: any) {
     console.error("Uncaught error:", error, errorInfo);
+    trackException('react_render_error', true);
   }
 
   render() {

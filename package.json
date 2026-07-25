@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "npx vite",
+    "test": "node --test tests/analytics.test.js",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "crawl": "node scripts/crawlBugs.js",

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, Menu, User as UserIcon, Disc, X, LogOut } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { trackLogout, trackNavigation, trackSearchSubmit } from '@/analytics';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     logout();
+    trackLogout();
     setIsProfileOpen(false);
     navigate('/');
   };
@@ -33,6 +35,10 @@ const Navbar: React.FC = () => {
     event.preventDefault();
     const query = searchQuery.trim();
     if (!query) return;
+    trackSearchSubmit({
+      queryLength: query.length,
+      searchSource: isMobileMenuOpen ? 'mobile_nav' : 'desktop_nav',
+    });
     navigate(`/search?q=${encodeURIComponent(query)}`);
     setIsMobileMenuOpen(false);
   };
@@ -80,7 +86,13 @@ const Navbar: React.FC = () => {
                   className="w-full bg-dark-card border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder-gray-500 group-hover:border-white/20"
                   aria-label="검색"
                 />
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-gray-300 transition-colors" />
+                <button
+                  type="submit"
+                  aria-label="검색 실행"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-gray-300 transition-colors"
+                >
+                  <Search className="h-4 w-4" />
+                </button>
               </form>
             </div>
 
@@ -160,7 +172,12 @@ const Navbar: React.FC = () => {
               return (
                 <Link 
                   key={index} 
-                  to={item.path} 
+                  to={item.path}
+                  onClick={() => trackNavigation({
+                    destinationPath: item.path,
+                    linkId: `primary-${item.path.slice(1)}`,
+                    navigationArea: 'desktop_primary',
+                  })}
                   className={`relative transition-colors hover:text-white py-1 group ${isActive ? 'text-white' : 'text-gray-400'}`}
                 >
                   {item.label}
@@ -184,7 +201,13 @@ const Navbar: React.FC = () => {
                   className="w-full bg-dark-card border border-white/10 rounded-lg py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-primary/50"
                   aria-label="검색"
                 />
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <button
+                  type="submit"
+                  aria-label="검색 실행"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                >
+                  <Search className="h-4 w-4" />
+                </button>
             </form>
             <div className="grid grid-cols-2 gap-4">
               {navItems.map((item, index) => {
@@ -194,7 +217,14 @@ const Navbar: React.FC = () => {
                     key={index} 
                     to={item.path} 
                     className={`text-sm font-medium py-2 border-b border-white/5 ${isActive ? 'text-white' : 'text-gray-300 hover:text-white'}`}
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={() => {
+                      trackNavigation({
+                        destinationPath: item.path,
+                        linkId: `primary-${item.path.slice(1)}`,
+                        navigationArea: 'mobile_primary',
+                      });
+                      setIsMobileMenuOpen(false);
+                    }}
                   >
                     {item.label}
                   </Link>

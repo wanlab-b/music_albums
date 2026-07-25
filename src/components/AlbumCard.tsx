@@ -1,15 +1,24 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Album } from '../types';
-import { Star } from 'lucide-react';
+import { trackAlbumSelect } from '@/analytics';
 import { getAlbumCoverUrl } from '../utils/media';
 
 interface AlbumCardProps {
   album: Album;
   rank?: number;
+  index?: number;
+  itemListId?: string;
+  itemListName?: string;
 }
 
-const AlbumCard: React.FC<AlbumCardProps> = ({ album, rank }) => {
+const AlbumCard: React.FC<AlbumCardProps> = ({
+  album,
+  rank,
+  index = 0,
+  itemListId = 'album_grid',
+  itemListName = 'Album Grid',
+}) => {
   const getScoreColor = (score: number) => {
     if (score >= 85) return 'bg-emerald-500';
     if (score >= 70) return 'bg-yellow-500';
@@ -17,7 +26,20 @@ const AlbumCard: React.FC<AlbumCardProps> = ({ album, rank }) => {
   };
 
   return (
-    <Link to={`/album/${album.id}`} className="group relative flex flex-col gap-2">
+    <Link
+      to={`/album/${album.id}`}
+      onClick={() => trackAlbumSelect({
+        albumId: album.id,
+        albumTitle: album.title,
+        artist: album.artist,
+        genre: album.genres[0],
+        itemListId,
+        itemListName,
+        index,
+      })}
+      data-analytics-list={itemListId}
+      className="group relative flex flex-col gap-2"
+    >
       <div className="relative aspect-square overflow-hidden rounded-xl bg-dark-card shadow-lg transition-transform duration-300 group-hover:-translate-y-1">
         <img 
           src={getAlbumCoverUrl(album.coverUrl, album.id, 600)} 
@@ -25,7 +47,6 @@ const AlbumCard: React.FC<AlbumCardProps> = ({ album, rank }) => {
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
-        {/* Overlay Gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         
         {rank && (

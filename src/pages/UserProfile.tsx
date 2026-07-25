@@ -6,6 +6,7 @@ import { Star, MessageSquare, Loader2 } from 'lucide-react';
 import { getReviewsByUserId } from '@/services/reviewService';
 import { getAllAlbums } from '@/services/albumService';
 import { Album, Review } from '@/types';
+import { trackProfileTab } from '@/analytics';
 
 const UserProfile: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -45,6 +46,17 @@ const UserProfile: React.FC = () => {
     );
     return [...ids].map((id) => albumMap.get(id)).filter(Boolean) as Album[];
   }, [reviews, albumMap]);
+
+  const handleTabChange = (tabName: 'albums' | 'reviews') => {
+    if (tabName === activeTab) return;
+
+    setActiveTab(tabName);
+    trackProfileTab({
+      tabName,
+      profileScope: 'public',
+      component: 'UserProfile'
+    });
+  };
 
   if (loading) {
     return (
@@ -101,14 +113,14 @@ const UserProfile: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex gap-8">
             <button 
-              onClick={() => setActiveTab('albums')}
+              onClick={() => handleTabChange('albums')}
               className={`py-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'albums' ? 'border-primary text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
             >
               <Star className="w-4 h-4" />
               Life Albums ({lifeAlbums.length})
             </button>
             <button 
-               onClick={() => setActiveTab('reviews')}
+               onClick={() => handleTabChange('reviews')}
                className={`py-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'reviews' ? 'border-primary text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
             >
               <MessageSquare className="w-4 h-4" />

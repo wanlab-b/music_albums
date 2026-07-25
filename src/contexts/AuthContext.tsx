@@ -1,13 +1,16 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { User } from '../types';
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { ADMIN_USER } from '@/constants';
+import { trackAuthError, trackAuthStart, trackAuthSuccess } from '@/analytics';
+
+type AuthFlow = 'login' | 'signup';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  loginWithGoogle: () => void;
+  loginWithGoogle: (authFlow?: AuthFlow) => void;
   logout: () => void;
 }
 
@@ -16,6 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const authFlowRef = useRef<AuthFlow>('login');
 
   // Check for persisted user on mount
   useEffect(() => {
@@ -32,7 +36,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(false);
   }, []);
 
-  const loginWithGoogle = useGoogleLogin({
+  const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         setIsLoading(true);
@@ -52,17 +56,46 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         setUser(newUser);
         localStorage.setItem('muzikpick_user', JSON.stringify(newUser));
+        trackAuthSuccess({ authFlow: authFlowRef.current, method: 'google' });
       } catch (error) {
         console.error('Failed to fetch user info:', error);
+        trackAuthError({
+          authFlow: authFlowRef.current,
+          method: 'google',
+          errorType: 'profile_fetch_error'
+        });
       } finally {
         setIsLoading(false);
       }
     },
     onError: (errorResponse) => {
       console.error('Google Login Failed:', errorResponse);
+      trackAuthError({
+        authFlow: authFlowRef.current,
+        method: 'google',
+        errorType: 'oauth_error'
+      });
       setIsLoading(false);
     }
   });
+
+  const loginWithGoogle = (authFlow: AuthFlow = 'login') => {
+    authFlowRef.current = authFlow;
+    trackAuthStart({ authFlow, method: 'google' });
+    setIsLoading(true);
+
+    try {
+      googleLogin();
+    } catch (error) {
+      console.error('Failed to launch Google Login:', error);
+      trackAuthError({
+        authFlow,
+        method: 'google',
+        errorType: 'oauth_launch_error'
+      });
+      setIsLoading(false);
+    }
+  };
 
   const logout = () => {
     setUser(null);

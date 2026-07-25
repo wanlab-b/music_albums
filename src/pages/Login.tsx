@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Disc, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { trackAuthStart } from '@/analytics';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const Login: React.FC = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // In a real app, integrate email/password auth here
-    console.log('Login with:', email, password);
+    trackAuthStart({ authFlow: 'login', method: 'email_demo' });
     // For demo purposes only
     navigate('/');
   };
@@ -27,7 +28,7 @@ const Login: React.FC = () => {
   const handleGoogleLogin = () => {
     // loginWithGoogle triggers the popup. 
     // The state update happens in AuthContext, triggering the useEffect above.
-    loginWithGoogle();
+    loginWithGoogle('login');
   };
 
   return (

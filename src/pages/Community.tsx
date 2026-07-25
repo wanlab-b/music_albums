@@ -5,6 +5,7 @@ import { getRecentReviews } from '@/services/reviewService';
 import { getAllAlbums } from '@/services/albumService';
 import { Album, Review } from '@/types';
 import { Loader2 } from 'lucide-react';
+import { trackContentSelection } from '@/analytics';
 
 const genreToSlug = (name: string) => {
   return name.toLowerCase().replace(/, /g, '-').replace(/ /g, '-');
@@ -185,13 +186,37 @@ const Community: React.FC = () => {
                         <Radio className="w-5 h-5 text-primary" />
                         장르별 게시판
                     </h2>
-                    <Link to="/genres" className="text-sm text-gray-400 hover:text-white transition-colors">전체보기</Link>
+                    <Link
+                      to="/genres"
+                      onClick={() =>
+                        trackContentSelection({
+                          contentType: 'genre_directory',
+                          contentId: 'all_genres',
+                          destinationPath: '/genres',
+                          component: 'Community',
+                          pageSection: 'genre-boards',
+                        })
+                      }
+                      className="text-sm text-gray-400 hover:text-white transition-colors"
+                    >
+                      전체보기
+                    </Link>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {genreStats.map((board) => (
                         <Link
                             to={`/community/${genreToSlug(board.name)}`}
                             key={board.id}
+                            onClick={() => {
+                              const genreSlug = genreToSlug(board.name);
+                              trackContentSelection({
+                                contentType: 'genre_board',
+                                contentId: genreSlug,
+                                destinationPath: `/community/${genreSlug}`,
+                                component: 'Community',
+                                pageSection: 'genre-boards',
+                              });
+                            }}
                             className={`text-left rounded-xl border border-white/10 p-4 bg-gradient-to-br ${board.color} hover:border-white/30 transition-all group`}
                         >
                             <div className="flex items-center justify-between mb-3">
@@ -290,13 +315,40 @@ const Community: React.FC = () => {
                         <Trophy className="w-5 h-5 text-yellow-500" />
                         이달의 리뷰어
                     </h3>
-                    <Link to="/community/reviewer-of-the-month" className="text-xs text-gray-500 hover:text-white">전체보기</Link>
+                    <Link
+                      to="/community/reviewer-of-the-month"
+                      onClick={() =>
+                        trackContentSelection({
+                          contentType: 'community_ranking',
+                          contentId: 'reviewer_of_the_month',
+                          destinationPath: '/community/reviewer-of-the-month',
+                          component: 'Community',
+                          pageSection: 'top-reviewers',
+                        })
+                      }
+                      className="text-xs text-gray-500 hover:text-white"
+                    >
+                      전체보기
+                    </Link>
                 </div>
                 
                 <div className="space-y-4">
                     {topUsers.length > 0 ? (
                         topUsers.map((user, index) => (
-                            <Link to={`/user/${user.id}`} key={user.id} className="flex items-center gap-4 group">
+                            <Link
+                              to={`/user/${user.id}`}
+                              key={user.id}
+                              onClick={() =>
+                                trackContentSelection({
+                                  contentType: 'reviewer_profile',
+                                  contentId: `rank_${index + 1}`,
+                                  destinationPath: '/user/:userId',
+                                  component: 'Community',
+                                  pageSection: 'top-reviewers',
+                                })
+                              }
+                              className="flex items-center gap-4 group"
+                            >
                                 <div className="relative">
                                     <img src={avatarFor(user.name, user.avatar)} alt={user.name} className="w-12 h-12 rounded-full object-cover ring-2 ring-white/5 group-hover:ring-primary/50 transition-all" />
                                     <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-dark-card rounded-full flex items-center justify-center text-[10px] font-bold text-white border border-white/10">
